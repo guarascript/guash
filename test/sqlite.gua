@@ -1,0 +1,50 @@
+#!/usr/local/bin/guash
+
+tries = 10
+
+function callback(row) {
+    $("lastRow") = row
+    
+    return(0)
+}
+
+if (argc > 2) {
+    tries = eval(argv[2])
+}
+
+println("Testing the sqlite functions...")
+
+interp_file = fileFullPath($argv[1])
+interp_path = filePath(interp_file)
+file_name = interp_path + "/test.db"
+
+if (fileExists(file_name)) {
+    fileDelete(file_name)
+}
+    
+db = sqliteOpen(file_name)
+
+sqliteExec(db, "CREATE TABLE test(col1 text, col2 text)")
+
+println("sqliteExec...")
+test (tries; toString({'value 1','value 2'})) {
+    lastRow = ""
+    
+    sqliteExec(db, "INSERT INTO test(col1, col2) VALUES('value 1','value 2')")
+    sqliteExec(db, "SELECT * FROM test", "callback")
+    
+    #println($("lastRow"))
+    
+    row = toString($("lastRow"))
+} catch {
+    println("TEST: Fail in expression \"sqliteExec(db, \"INSERT INTO test(col1, col2) VALUES('value 1','value 2')\")\".")
+    print("      Expected result ")
+    println(GUA_DESIRED)
+    print("      But got ")
+    println(GUA_RESULT)
+}
+println("Test completed in " + GUA_TIME + " seconds.")
+println("Tries = " + GUA_TRIES)
+
+db = sqliteClose(db)
+

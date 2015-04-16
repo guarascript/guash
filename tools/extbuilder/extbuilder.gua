@@ -1,0 +1,245 @@
+#!/usr/local/bin/guash
+#
+# extbuilder.gua
+#
+#     GuaraScript Extension Builder.
+#
+# Copyright (C) 2013 Roberto Luiz Souza Monteiro
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# RCS: @(#) $Id: extbuilder.gua,v 1.1 2013/00/01 08:43:00 monteiro Exp $
+#
+
+#
+# Reads the extension header.
+#
+function Builder_CreateHeader(target_file_name) {
+    fo = fopen(target_file_name, "w")
+    
+    fputs("#include <stdlib.h>\n", fo)
+    fputs("#include <string.h>\n", fo)
+    fputs("#include \"interp.h\"\n\n", fo)
+    
+    fo = fclose(fo)
+}
+
+#
+# Reads the functions list and create a GuaraScript function wrapper to it.
+#
+function Builder_CreateFunctionWrapper(extension_prefix, functions_list_file_name, target_file_name) {
+    if (functions_list_file_name != "") {
+        fo = fopen(target_file_name, "a+")
+        
+        # Create the function wrapper header...
+        fputs("/*\n", fo)
+        fputs(" * Gua_Status " + extension_prefix + "_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gua_Object *object, Gua_String error)\n", fo)
+        fputs(" *\n", fo)
+        fputs(" *     Function wrapper.\n", fo)
+        fputs(" *\n", fo)
+        fputs(" * Arguments:\n", fo)
+        fputs(" *     nspace    a pointer to a structure Gua_Namespace. Must do a cast before use it.\n", fo)
+        fputs(" *     argc      the number of arguments to pass to the function.\n", fo)
+        fputs(" *     argv      an array containing the arguments to the function.\n", fo)
+        fputs(" *               argv[0] is the function name.\n", fo)
+        fputs(" *     object    a structure containing the return object of the function.\n", fo)
+        fputs(" *     error     a pointer to the error message.\n", fo)
+        fputs(" *\n", fo)
+        fputs(" * Results:\n", fo)
+        fputs(" *     The return object of the wrapped function.\n", fo)
+        fputs(" */\n", fo)
+        fputs("Gua_Status " + extension_prefix + "_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gua_Object *object, Gua_String error)\n", fo)
+        fputs("{\n", fo)
+        fputs("    Gua_String errMessage;\n\n", fo)
+        
+        # Verify if a function name was supplied...
+        fputs("    if (argc == 0) {\n", fo)
+        fputs("        errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);\n", fo)
+        fputs("        sprintf(errMessage, \"%s\\n\", \"no function specified\");\n", fo)
+        fputs("        strcat(error, errMessage);\n", fo)
+        fputs("        Gua_Free(errMessage);\n\n", fo)
+        fputs("        return GUA_ERROR;\n", fo)
+        fputs("    }\n\n", fo)
+        
+        # Add a function wrapper to each function name in the supplied list...
+        fflist = fopen(functions_list_file_name, "r")
+        
+        n = 0
+        
+        while (!feof(fflist)) {
+            if((line = fgets(fflist)) == NULL) { 
+                break
+            }
+            
+            n = n + 1
+            
+            if (n == 1) {
+                fputs("    if (strcmp(Gua_ObjectToString(argv[0]), \"" + trim(line, " \t\r\n") + "\") == 0) {\n", fo)
+            } else {
+                fputs("    } else if (strcmp(Gua_ObjectToString(argv[0]), \"" + trim(line, " \t\r\n") + "\") == 0) {\n", fo)
+            }
+        }
+        
+        if (n > 0) {
+            fputs("    }\n\n", fo)
+        }
+        
+        fflist = fclose(fflist)
+        
+        fputs("    return GUA_OK;\n", fo)
+        fputs("}\n\n", fo)
+        
+        fo = fclose(fo)
+    }
+}
+
+#
+# Reads the constants list, the functions list and create a GuaraScript extension init function to them.
+#
+function Builder_CreateInitFunction(extension_prefix, constants_list_file_name, functions_list_file_name, target_file_name) {
+    if ((functions_list_file_name != "") || (constants_list_file_name != "")) {
+        fo = fopen(target_file_name, "a+")
+        
+        # Create the function wrapper header...
+        fputs("/*\n", fo)
+        fputs(" * Gua_Status " + extension_prefix + "_Init(void *nspace, int argc, char *argv[], char **env, Gua_String error)\n", fo)
+        fputs(" *\n", fo)
+        fputs(" *     Install the extension functions.\n", fo)
+        fputs(" *\n", fo)
+        fputs(" * Arguments:\n", fo)
+        fputs(" *     nspace    a pointer to a structure containing the variable and function namespace.\n", fo)
+        fputs(" *     argc      the number of command line arguments.\n", fo)
+        fputs(" *     argv      the command line arguments.\n", fo)
+        fputs(" *     env       a pointer to the environment variables.\n", fo)
+        fputs(" *     error     a pointer to the error message.\n", fo)
+        fputs(" *\n", fo)
+        fputs(" * Results:\n", fo)
+        fputs(" *     Install the extension functions.\n", fo)
+        fputs(" */\n", fo)
+        fputs("Gua_Status " + extension_prefix + "_Init(void *nspace, int argc, char *argv[], char **env, Gua_String error)\n", fo)
+        fputs("{\n", fo)
+        fputs("    Gua_Function function;\n", fo)
+        fputs("    Gua_Object object;\n", fo)
+        fputs("    Gua_String errMessage;\n\n", fo)
+
+        if (functions_list_file_name != "") {
+            # Define the function wrapper to each function name in the supplied list...
+            fflist = fopen(functions_list_file_name, "r")
+            
+            fputs("    /* Define the function wrapper to each extension function... */\n", fo)
+            
+            while (!feof(fflist)) {
+                if((line = fgets(fflist)) == NULL) { 
+                    break
+                }
+                
+                fputs("    Gua_LinkCFunctionToFunction(function, " + extension_prefix + "_FunctionWrapper);\n", fo)
+                fputs("    if (Gua_SetFunction((Gua_Namespace *)nspace, \"" + trim(line, " \t\r\n") + "\", &function) != GUA_OK) {\n", fo)
+                fputs("        errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);\n", fo)
+                fputs("        sprintf(errMessage, \"%s %-.20s...\\n\", \"can\'t set function\", \"" + trim(line, " \t\r\n") + "\");\n", fo)
+                fputs("        strcat(error, errMessage);\n", fo)
+                fputs("        Gua_Free(errMessage);\n", fo)
+                fputs("    }\n", fo)
+            }
+            
+            fputs("\n", fo)
+            
+            fflist = fclose(fflist)
+        }
+        
+        if (constants_list_file_name != "") {
+            # Define the function wrapper to each function name in the supplied list...
+            fflist = fopen(constants_list_file_name, "r")
+            
+            fputs("    /* Define each extension constant... */\n", fo)
+            
+            while (!feof(fflist)) {
+                if((line = fgets(fflist)) == NULL) { 
+                    break
+                }
+                
+                fputs("    Gua_IntegerToObject(object, " + trim(line, " \t\r\n") + ");\n", fo)
+                fputs("    Gua_SetStoredObject(object);\n", fo)
+                fputs("    if (Gua_SetVariable((Gua_Namespace *)nspace, \"" + trim(line, " \t\r\n") + "\", &object, SCOPE_GLOBAL) != GUA_OK) {\n", fo)
+                fputs("        errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);\n", fo)
+                fputs("        sprintf(errMessage, \"%s %-.20s...\\n\", \"can\'t set variable\", \"" + trim(line, " \t\r\n") + "\");\n", fo)
+                fputs("        strcat(error, errMessage);\n", fo)
+                fputs("        Gua_Free(errMessage);\n", fo)
+                fputs("    }\n", fo)
+            }
+            
+            fputs("\n", fo)
+            
+            fflist = fclose(fflist)
+        }
+        
+        
+        fputs("    return GUA_OK;\n", fo)
+        fputs("}\n\n", fo)
+        
+        fo = fclose(fo)
+    }
+}
+
+#
+# Configuration variables.
+#
+extension_prefix = ""
+constants_list_file_name = ""
+functions_list_file_name = ""
+target_file_name = ""
+
+#
+# Main program.
+#
+if (argc < 3) {
+    println("Usage: extbuilder option1 value1 [option1 value1]")
+    exit
+}
+
+i = 2
+
+while (i < argc) {
+    if ((argv[i] == "-h") || (argv[i] == "--help")) {
+        println("Usage: extbuilder option1 value1 [option1 value1]")
+        println("-h    --help    show the options sumary")
+        println("-c              constants list file")
+        println("-f              functions list file")
+        println("-o              output file name")
+        println("-p              extension prefix")
+        exit(0)
+    } elseif (argv[i] == "-c") {
+        i = i + 1
+        constants_list_file_name = argv[i]
+    } elseif (argv[i] == "-f") {
+        i = i + 1
+        functions_list_file_name = argv[i]
+    } elseif (argv[i] == "-o") {
+        i = i + 1
+        target_file_name = argv[i]
+    } elseif (argv[i] == "-p") {
+        i = i + 1
+        extension_prefix = argv[i]
+    }
+    i = i + 1
+} 
+
+#
+# Build the extension skel.
+#
+Builder_CreateHeader(target_file_name)
+Builder_CreateFunctionWrapper(extension_prefix, functions_list_file_name, target_file_name)
+Builder_CreateInitFunction(extension_prefix, constants_list_file_name, functions_list_file_name, target_file_name)
+

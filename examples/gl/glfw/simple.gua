@@ -1,0 +1,68 @@
+#!/usr/local/bin/glfwguash
+
+EXIT_FAILURE = 1;
+EXIT_SUCCESS = 0;
+
+function error_callback(error, description) {
+    println(description);
+}
+
+function key_callback(window, key, scancode, action, mods) {
+    printf("%c, %d, %d, %d, %d\n", key, key, scancode, action, mods);
+    
+    if ((key == GLFW_KEY_ESCAPE) && (action == GLFW_PRESS)) {
+        glfwSetWindowShouldClose(window, GL_TRUE);
+    }
+}
+
+glfwSetErrorCallback("error_callback");
+
+window = ""
+window = glfwCreateWindow(640, 480, "Simple example")
+
+if (!exists("window")) {
+    glfwTerminate();
+    exit(EXIT_FAILURE);
+}
+
+glfwMakeContextCurrent(window);
+glfwSwapInterval(1);
+
+glfwSetKeyCallback(window, "key_callback");
+
+while (!glfwWindowShouldClose(window)) {
+    width = 0;
+    height = 0;
+    
+    glfwGetFramebufferSize(window, "width", "height");
+    ratio = width / (1.0 * height);
+    
+    glViewport(0, 0, width, height);
+    glClear(GL_COLOR_BUFFER_BIT);
+    
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(-ratio, ratio, -1.0, 1.0, 1.0, -1.0);
+    glMatrixMode(GL_MODELVIEW);
+    
+    glLoadIdentity();
+    glRotate(1.0 * glfwGetTime() * 50.0, 0.0, 0.0, 1.0);
+    
+    glBegin(GL_TRIANGLES);
+    glColor(1.0, 0.0, 0.0, 1.0);
+    glVertex(-0.6, -0.4, 0.0);
+    glColor(0.0, 1.0, 0.0, 1.0);
+    glVertex(0.6, -0.4, 0.0);
+    glColor(0.0, 0.0, 1.0, 1.0);
+    glVertex(0.0, 0.6, 0.0);
+    glEnd();
+    
+    glfwSwapBuffers(window);
+    glfwPollEvents();
+}
+
+glfwDestroyWindow(window);
+
+glfwTerminate();
+exit(EXIT_SUCCESS);
+
