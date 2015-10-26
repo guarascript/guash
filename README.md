@@ -26,7 +26,5 @@ For more information send mail to: info@guarascript.org
 You can get the last GuaraScript version at
 http://www.guarascript.org
 
-Salvador, February 2015.
-
 Roberto Luiz Souza Monteiro
 
