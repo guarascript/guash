@@ -6,11 +6,11 @@ texture_height = 0
 texture_names = ""
 
 function create_texture_images() {
-    texture = glutilLoadPPM($texture_file, "texture_width", "texture_height");
+    texture = gloLoadPPM($texture_file, "texture_width", "texture_height");
     
     $texture1 = glArrayOfByte(texture);
     
-    #glutilSavePPM(texture, "/tmp/texture.ppm", $texture_width, $texture_height);
+    #gloSavePPM(texture, "/tmp/texture.ppm", $texture_width, $texture_height);
 }
 
 function display() {
@@ -64,9 +64,9 @@ function finish() {
 }
 
 # Get the textures path...
-interp_file = fsFullPath($argv[1])
-interp_path = fsPath(interp_file)
-texture_file = interp_path + "/images/13071980385.ppm"
+script_file = fsFullPath($argv[1])
+script_path = fsPath(script_file)
+texture_file = script_path + "/images/13071980385.ppm"
 
 # Create the main window...
 glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);

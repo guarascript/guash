@@ -10,9 +10,9 @@
  *
  * Copyright:
  *     Copyright (C) 2005 Roberto Luiz Souza Monteiro;
- *     Copyright (C) 2013 Roberto Luiz Souza Monteiro,
- *                    Hernane Borges de Barros Pereira,
- *                    Marcelo A. Moret.
+ *     Copyright (C) 2013, 2015 Roberto Luiz Souza Monteiro,
+ *                              Hernane Borges de Barros Pereira,
+ *                              Marcelo A. Moret.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * RCS: @(#) $Id: system.c,v 2.2 2014/08/05 09:20:00 monteiro Exp $
+ * RCS: @(#) $Id: system.c,v 2.4 2015/10/10 15:14:00 monteiro Exp $
  * 
  */
 
@@ -36,146 +36,11 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
-#include <sys/time.h>
 #include "interp.h"
 #include "system.h"
 
 #define EXPRESSION_SIZE  4096
 #define BUFFER_SIZE      65536
-
-/**
- * Group:
- *     C
- *
- * Function:
- *     Gua_Status System_TimeFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gua_Object *object, Gua_String error)
- *
- * Description:
- *     Time function wrapper.
- *
- * Arguments:
- *     nspace,    a pointer to a structure Gua_Namespace. Must do a cast before use it;
- *     argc,      the number of arguments to pass to the function;
- *     argv,      an array containing the arguments to the function;
- *                argv[0] is the function name;
- *     object,    a structure containing the return object of the function;
- *     error,     a pointer to the error message.
- *
- * Retults:
- *     Return the time as a real number.
- */
-Gua_Status System_TimeFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gua_Object *object, Gua_String error)
-{
-    struct timeval tv;
-    struct timezone tz;
-    Gua_String errMessage;
-    
-    Gua_ClearPObject(object);
-    
-    if (argc == 0) {
-        errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
-        sprintf(errMessage, "%s\n", "no function specified");
-        strcat(error, errMessage);
-        Gua_Free(errMessage);
-        
-        return GUA_ERROR;
-    }
-    
-    if (argc != 1) {
-        errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
-        sprintf(errMessage, "%s %-.20s...\n", "wrong number of arguments for function", Gua_ObjectToString(argv[0]));
-        strcat(error, errMessage);
-        Gua_Free(errMessage);
-        
-        return GUA_ERROR;
-    }
-    
-    gettimeofday(&tv, &tz);
-    
-    Gua_RealToPObject(object, (tv.tv_sec + (tv.tv_usec / 1000000.0)));
-    
-    return GUA_OK;
-}
-
-/**
- * Group:
- *     C
- *
- * Function:
- *     Gua_Status System_StrftimeFunctionWrapper(void *nspace, Gua_Status argc, Gua_Object *argv, Gua_Object *object, Gua_String error)
- *
- * Description:
- *     Strftime function wrapper.
- *
- * Arguments:
- *     nspace,    a pointer to a structure Gua_Namespace. Must do a cast before use it;
- *     argc,      the number of arguments to pass to the function;
- *     argv,      an array containing the arguments to the function;
- *                argv[0] is the function name;
- *     object,    a structure containing the return object of the function;
- *     error,     a pointer to the error message.
- *
- * Retults:
- *     Return the time as a string.
- */
-Gua_Status System_StrftimeFunctionWrapper(void *nspace, Gua_Status argc, Gua_Object *argv, Gua_Object *object, Gua_String error)
-{
-    time_t timep;
-    struct tm *tm;
-    Gua_String buffer;
-    Gua_String errMessage;
-    
-    Gua_ClearPObject(object);
-
-    if (argc == 0) {
-        errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
-        sprintf(errMessage, "%s\n", "no function specified");
-        strcat(error, errMessage);
-        Gua_Free(errMessage);
-        
-        return GUA_ERROR;
-    }
-    
-    if (argc != 3) {
-        errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
-        sprintf(errMessage, "%s %-.20s...\n", "wrong number of arguments for function", Gua_ObjectToString(argv[0]));
-        strcat(error, errMessage);
-        Gua_Free(errMessage);
-        
-        return GUA_ERROR;
-    }
-    
-    if (Gua_ObjectType(argv[1]) != OBJECT_TYPE_STRING) {
-        errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
-        sprintf(errMessage, "%s %-.20s...\n", "illegal argument 1 for function", Gua_ObjectToString(argv[0]));
-        strcat(error, errMessage);
-        Gua_Free(errMessage);
-        
-        return GUA_ERROR;
-    }
-    if (Gua_ObjectType(argv[2]) != OBJECT_TYPE_REAL) {
-        errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
-        sprintf(errMessage, "%s %-.20s...\n", "illegal argument 2 for function", Gua_ObjectToString(argv[0]));
-        strcat(error, errMessage);
-        Gua_Free(errMessage);
-        
-        return GUA_ERROR;
-    }
-    
-    buffer = (char *)Gua_Alloc(sizeof(char) * BUFFER_SIZE);
-    
-    timep = (long)(Gua_ObjectToReal(argv[2]));
-    tm = localtime(&timep);
-    
-    strftime(buffer, BUFFER_SIZE, Gua_ObjectToString(argv[1]), tm);
-
-    Gua_StringToPObject(object, buffer);
-    
-    Gua_Free(buffer);
-    
-    return GUA_OK;
-}
 
 /**
  * Group:
@@ -195,7 +60,7 @@ Gua_Status System_StrftimeFunctionWrapper(void *nspace, Gua_Status argc, Gua_Obj
  *     object,    a structure containing the return object of the function;
  *     error,     a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     Print a object on stdout.
  */
 Gua_Status System_PrintFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gua_Object *object, Gua_String error)
@@ -292,7 +157,7 @@ Gua_Status System_PrintFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object 
  *     object,    a structure containing the return object of the function;
  *     error,     a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     Print a object on stdout and the line feed character.
  */
 Gua_Status System_PrintlnFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gua_Object *object, Gua_String error)
@@ -390,7 +255,7 @@ Gua_Status System_PrintlnFunctionWrapper(void *nspace, Gua_Short argc, Gua_Objec
  *     object,    a structure containing the return object of the function;
  *     error,     a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     Read a script file and try to execute it.
  */
 Gua_Status System_SourceFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gua_Object *object, Gua_String error)
@@ -484,7 +349,7 @@ Gua_Status System_SourceFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object
  *     object,    a structure containing the return object of the function;
  *     error,     a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     Execute a system command.
  */
 Gua_Status System_ExecFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gua_Object *object, Gua_String error)
@@ -542,7 +407,7 @@ Gua_Status System_ExecFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *
  *     env,       a pointer to the environment variables;
  *     error,     a pointer to the error message;
  *
- * Retults:
+ * Results:
  *     Install the system functions.
  */
 Gua_Status System_Init(void *nspace, int argc, char *argv[], char **env, Gua_String error)
@@ -576,20 +441,6 @@ Gua_Status System_Init(void *nspace, int argc, char *argv[], char **env, Gua_Str
     if (Gua_SetFunction((Gua_Namespace *)nspace, "source", &function) != GUA_OK) {
         errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
         sprintf(errMessage, "%s %-.20s...\n", "can't set function", "source");
-        strcat(error, errMessage);
-        Gua_Free(errMessage);
-    }
-    Gua_LinkCFunctionToFunction(function, System_StrftimeFunctionWrapper);
-    if (Gua_SetFunction((Gua_Namespace *)nspace, "strftime", &function) != GUA_OK) {
-        errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
-        sprintf(errMessage, "%s %-.20s...\n", "can't set function", "strftime");
-        strcat(error, errMessage);
-        Gua_Free(errMessage);
-    }
-    Gua_LinkCFunctionToFunction(function, System_TimeFunctionWrapper);
-    if (Gua_SetFunction((Gua_Namespace *)nspace, "time", &function) != GUA_OK) {
-        errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
-        sprintf(errMessage, "%s %-.20s...\n", "can't set function", "time");
         strcat(error, errMessage);
         Gua_Free(errMessage);
     }

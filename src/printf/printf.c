@@ -69,7 +69,7 @@
  *     object,    a structure containing the return object of the function;
  *     error,     a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     Return a formatted string.
  */
 Gua_Status Printf_SprintfFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gua_Object *object, Gua_String error)
@@ -292,7 +292,7 @@ Gua_Status Printf_SprintfFunctionWrapper(void *nspace, Gua_Short argc, Gua_Objec
  *     object,    a structure containing the return object of the function;
  *     error,     a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     Print a formated object on stdout.
  */
 Gua_Status Printf_PrintfFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gua_Object *object, Gua_String error)
@@ -361,7 +361,7 @@ Gua_Status Printf_PrintfFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object
  *     env,       a pointer to the environment variables;
  *     error,     a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     Install the printf and sprintf functions.
  */
 Gua_Status Printf_Init(void *nspace, int argc, char *argv[], char **env, Gua_String error)

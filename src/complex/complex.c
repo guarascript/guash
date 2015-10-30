@@ -57,7 +57,7 @@
  *     object,    a structure containing the return object of the function;
  *     error,     a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     The return object of the wrapped funcion.
  */
 Gua_Status Complex_ComplexFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gua_Object *object, Gua_String error)
@@ -255,7 +255,7 @@ Gua_Status Complex_ComplexFunctionWrapper(void *nspace, Gua_Short argc, Gua_Obje
  *     env,       a pointer to the environment variables;
  *     error,     a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     Install the complex functions.
  */
 Gua_Status Complex_Init(void *nspace, int argc, char *argv[], char **env, Gua_String error)

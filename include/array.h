@@ -22,13 +22,17 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * RCS: @(#) $Id: array.h,v 1.6 2014/01/03 09:58:00 monteiro Exp $
+ * RCS: @(#) $Id: array.h,v 1.7 2015/10/08 21:51:00 monteiro Exp $
  * 
  */
 
-#define ARRAY_VERSION "1.6"
+#define ARRAY_ASCENDING_ORDER   0
+#define ARRAY_DESCENDING_ORDER  1
+
+#define ARRAY_VERSION "1.7"
 
 Gua_Status Array_Intersection(Gua_Object *a, Gua_Object *b, Gua_Object *c, Gua_String error);
+Gua_Status Array_Sort(Gua_Object *target, Gua_Object *source, Gua_Integer order, Gua_String error);
 Gua_Status Array_ArrayFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gua_Object *object, Gua_String error);
 Gua_Status Array_Init(void *nspace, int argc, char *argv[], char **env, Gua_String error);
 

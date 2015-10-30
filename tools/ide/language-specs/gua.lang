@@ -22,7 +22,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 -->
-<language id="gua" _name="GuaraScript" version="1.6" _section="Scripts">
+<language id="gua" _name="GuaraScript" version="2.0" _section="Scripts">
     <metadata>
         <property name="mimetypes">text/x-gua;application/x-gua</property>
         <property name="globs">*.gua</property>
@@ -68,6 +68,10 @@
                         <context ref="def:line-continue"/>
                         <context ref="def:escape"/>
                     </include>
+                </context>
+                
+                <context id="string-single" style-ref="operator" extend-parent="false">
+                    <match>[']</match>
                 </context>
 
                 <context id="boolean" style-ref="boolean">

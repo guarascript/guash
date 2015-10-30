@@ -9,9 +9,9 @@
  *     This library implements the file system access functions.
  *
  * Copyright:
- *     Copyright (C) 2013 Roberto Luiz Souza Monteiro,
- *                        Hernane Borges de Barros Pereira,
- *                        Marcelo A. Moret.
+ * Copyright (C) 2013, 2015 Roberto Luiz Souza Monteiro,
+ *                          Hernane Borges de Barros Pereira,
+ *                          Marcelo A. Moret.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * RCS: @(#) $Id: fs.c,v 1.2 2015/03/11 15:02:00 monteiro Exp $
+ * RCS: @(#) $Id: fs.c,v 2.0 2015/09/17 01:34:00 monteiro Exp $
  * 
  */
 
@@ -58,6 +58,706 @@
  *     C
  *
  * Function:
+ *     Gua_Status Fs_Copy(Gua_String source, Gua_String target, Gua_String error)
+ *
+ * Description:
+ *     Copy source file to target file.
+ *
+ * Arguments:
+ *     source,    the source file name;
+ *     target,    the target file name;
+ *     error,     a pointer to the error message.
+ *
+ * Results:
+ *     Copy source file to target file.
+ */
+Gua_Status Fs_Copy(Gua_String source, Gua_String target, Gua_String error)
+{
+    FILE *fs;
+    FILE *ft;
+    Gua_Char c;
+    Gua_String errMessage;
+    
+    /* Open input and output files in binary mode for Windows compatibility. */
+    if ((fs = fopen(source, "rb")) == NULL) {
+        errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
+        sprintf(errMessage, "%s %-.20s...\n", "could not open file", source);
+        strcat(error, errMessage);
+        Gua_Free(errMessage);
+        
+        return GUA_ERROR;
+    }
+    if ((ft = fopen(target, "wb")) == NULL) {
+        errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
+        sprintf(errMessage, "%s %-.20s...\n", "could not open file", target);
+        strcat(error, errMessage);
+        Gua_Free(errMessage);
+        
+        return GUA_ERROR;
+    }
+    
+    while (!feof(fs)) {
+        fread(&c, sizeof(Gua_Char), 1, fs);
+        fwrite(&c, sizeof(Gua_Char), 1, ft);
+    }
+    
+    fclose(fs);
+    fclose(ft);
+    
+    return GUA_OK;
+}
+
+/**
+ * Group:
+ *     C
+ *
+ * Function:
+ *     Gua_Status Fs_Delete(Gua_String file, Gua_String error)
+ *
+ * Description:
+ *     Delete the specified file.
+ *
+ * Arguments:
+ *     file,    file name;
+ *     error,   a pointer to the error message.
+ *
+ * Results:
+ *     Delete the specified file.
+ */
+Gua_Status Fs_Delete(Gua_String file, Gua_String error)
+{
+    Gua_String errMessage;
+    
+    if (remove(file) != 0) {
+        errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
+        sprintf(errMessage, "%s %-.20s...\n", "can not remove file", file);
+        strcat(error, errMessage);
+        Gua_Free(errMessage);
+        
+        return GUA_ERROR;
+    }
+    
+    return GUA_OK;
+}
+
+/**
+ * Group:
+ *     C
+ *
+ * Function:
+ *     Gua_Integer Fs_Exists(Gua_String file)
+ *
+ * Description:
+ *     Check if the specified file exists.
+ *
+ * Arguments:
+ *     file,    file name;
+ *
+ * Results:
+ *     Return true if the specified file exists.
+ */
+Gua_Integer Fs_Exists(Gua_String file)
+{
+    Gua_Short fileMode;
+    
+    if (strlen(file) > 0) {
+        fileMode = F_OK;
+        
+        if (access(file, fileMode) == -1) {
+            return 0;
+        }
+    }
+    
+    return 1;
+}
+
+/**
+ * Group:
+ *     C
+ *
+ * Function:
+ *     void Fs_Extension(Gua_String file, Gua_String *extension)
+ *
+ * Description:
+ *     Get the file extenxion.
+ *
+ * Arguments:
+ *     file,         the full file name;
+ *     extension,    the file extension;
+ *
+ * Results:
+ *     Return the file extenxion.
+ */
+void Fs_Extension(Gua_String file, Gua_String *extension)
+{
+    Gua_Short i;
+    Gua_Short j;
+    Gua_Short k;
+    Gua_Short patternFound;
+    Gua_String newString;
+    
+    if (strlen(file) > 0) {
+        /* Find the extension separator. */
+        patternFound = 0;
+        for (i = strlen(file) - 1; i > 0; i--) {
+            if ((file[i] == '\\') || (file[i] == '/')) {
+                break;
+            }
+            if (file[i] == '.') {
+                patternFound = 1;
+                break;
+            }
+        }
+        
+        if (patternFound) {
+            /* Skip the extension separator. */
+            if (file[i] == '.') {
+                i++;
+            }
+            
+            /* Get the file name. */
+            newString = (Gua_String)malloc(sizeof(Gua_Char) * strlen(file) + 1);
+            k = 0;
+            for (j = i; j < strlen(file); j++) {
+                newString[k] = file[j];
+                k++;
+            }
+            newString[k] = '\0';
+        } else {
+            newString = (Gua_String)malloc(sizeof(Gua_Char));
+            newString[0] = '\0';
+        }
+    } else {
+        newString = (Gua_String)malloc(sizeof(Gua_Char));
+        newString[0] = '\0';
+    }
+    
+    *extension = newString;
+}
+
+/**
+ * Group:
+ *     C
+ *
+ * Function:
+ *     void Fs_FullPath(Gua_String file, Gua_String *path)
+ *
+ * Description:
+ *     Get the file extenxion.
+ *
+ * Arguments:
+ *     file,    the full file name;
+ *     path,    the file full path;
+ *
+ * Results:
+ *     Return the file full path.
+ */
+void Fs_FullPath(Gua_String file, Gua_String *path)
+{
+    Gua_Short i;
+    Gua_String realPath;
+    Gua_String unixPath;
+    
+    realPath = realpath(file, NULL);
+    
+    /* Convert Windows path to Unix path. */
+    if (realPath != NULL) {
+        unixPath = (Gua_String)malloc(sizeof(Gua_Char) * strlen(realPath) + 1);
+        for (i = 0; i < strlen(realPath); i++) {
+            unixPath[i] = realPath[i] == '\\' ? '/' : realPath[i];
+        }
+        unixPath[i] = '\0';
+        
+        Gua_Free(realPath);
+        
+        *path = unixPath;
+    }
+}
+
+/**
+ * Group:
+ *     C
+ *
+ * Function:
+ *     Gua_Integer Fs_IsDirectory(Gua_String file)
+ *
+ * Description:
+ *     Check if the specified file is a directory.
+ *
+ * Arguments:
+ *     file,    file name;
+ *
+ * Results:
+ *     Return true if the specified file is a directory.
+ */
+Gua_Integer Fs_IsDirectory(Gua_String file)
+{
+    struct stat fileStat;
+    
+    if (strlen(file) > 0) {
+        if (stat(file, &fileStat) == -1) {
+            return 0;
+        }
+        
+        if (S_ISDIR(fileStat.st_mode)) {
+            return 1;
+        }
+    }
+    
+    return 0;
+}
+
+/**
+ * Group:
+ *     C
+ *
+ * Function:
+ *     Gua_Integer Fs_IsExecutable(Gua_String file)
+ *
+ * Description:
+ *     Check if the specified file is executable.
+ *
+ * Arguments:
+ *     file,    file name;
+ *
+ * Results:
+ *     Return true if the specified file is executable.
+ */
+Gua_Integer Fs_IsExecutable(Gua_String file)
+{
+#ifndef _WINDOWS_
+    Gua_Short fileMode;
+#endif
+    
+    if (strlen(file) > 0) {
+#ifdef _WINDOWS_
+        if ((strstr(file, ".bat") != NULL) || (strstr(file, ".com") != NULL) || (strstr(file, ".exe") != NULL)) {
+            return 1;
+        }
+#else
+        fileMode = X_OK;
+        
+        if (access(file, fileMode) != -1) {
+            return 1;
+        }
+#endif
+    }
+    
+    return 0;
+}
+
+/**
+ * Group:
+ *     C
+ *
+ * Function:
+ *     Gua_Integer Fs_IsReadable(Gua_String file)
+ *
+ * Description:
+ *     Check if the specified file is readable.
+ *
+ * Arguments:
+ *     file,    file name;
+ *
+ * Results:
+ *     Return true if the specified file is readable.
+ */
+Gua_Integer Fs_IsReadable(Gua_String file)
+{
+    Gua_Short fileMode;
+    
+    if (strlen(file) > 0) {
+        fileMode = R_OK;
+        
+        if (access(file, fileMode) == -1) {
+            return 0;
+        }
+    }
+    
+    return 1;
+}
+
+/**
+ * Group:
+ *     C
+ *
+ * Function:
+ *     Gua_Integer Fs_IsWritable(Gua_String file)
+ *
+ * Description:
+ *     Check if the specified file is writable.
+ *
+ * Arguments:
+ *     file,    file name;
+ *
+ * Results:
+ *     Return true if the specified file is writable.
+ */
+Gua_Integer Fs_IsWritable(Gua_String file)
+{
+    Gua_Short fileMode;
+    
+    if (strlen(file) > 0) {
+        fileMode = W_OK;
+        
+        if (access(file, fileMode) == -1) {
+            return 0;
+        }
+    }
+    
+    return 1;
+}
+
+/**
+ * Group:
+ *     C
+ *
+ * Function:
+ *     Gua_Integer Fs_Link(Gua_String source, Gua_String target)
+ *
+ * Description:
+ *     Create a link to the source file.
+ *
+ * Arguments:
+ *     source,    the source file name;
+ *     target,    the target file name;
+ *
+ * Results:
+ *     Create a link to the source file.
+ */
+Gua_Integer Fs_Link(Gua_String source, Gua_String target)
+{
+    if ((strlen(source) > 0) && (strlen(target) > 0)) {
+#ifdef _WINDOWS_
+        return 0;
+#else
+        if (symlink(source, target) == -1) {
+            return 0;
+        }
+#endif
+    }
+    
+    return 1;
+}
+
+/**
+ * Group:
+ *     C
+ *
+ * Function:
+ *     Gua_Status Fs_List(Gua_String directory, Gua_Object *list, Gua_String error)
+ *
+ * Description:
+ *     Get the directory file list.
+ *
+ * Arguments:
+ *     directory,    the directory name;
+ *     list,         directory file list;
+ *     error,        a pointer to the error message.
+ *
+ * Results:
+ *     Return the directory file list.
+ */
+Gua_Status Fs_List(Gua_String directory, Gua_Object *list, Gua_String error)
+{
+    Gua_Short i;
+    DIR *dirPointer;
+    struct dirent *dirEntry;
+    Gua_Element *previous;
+    Gua_Element *newElement;
+    Gua_String errMessage;
+    
+    if (strlen(directory) > 0) {
+        if ((dirPointer = opendir(directory)) == NULL) {
+            errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
+            sprintf(errMessage, "%s %-.20s...\n", "could not open directory", directory);
+            strcat(error, errMessage);
+            Gua_Free(errMessage);
+            
+            return GUA_ERROR;
+        }
+        
+        i = 0;
+        
+        while ((dirEntry = readdir(dirPointer)) != NULL) {
+            if (i == 0) {
+                /* Create the first element. */
+                newElement = (Gua_Element *)Gua_Alloc(sizeof(Gua_Element));
+                /* The element key. */
+                Gua_IntegerToObject(newElement->key, i);
+                /* The element object. */
+                Gua_StringToObject(newElement->object, dirEntry->d_name);
+                
+                /* Set the target array chain. */
+                newElement->previous = NULL;
+                newElement->next = NULL;
+                
+                /* Link the first element. */
+                Gua_ArrayToPObject(list, (struct Gua_Element *)newElement, 1);
+                
+                previous = (Gua_Element *)Gua_PObjectToArray(list);
+            } else {
+                /* Create a new element. */
+                newElement = (Gua_Element *)Gua_Alloc(sizeof(Gua_Element));
+                /* The element key. */
+                Gua_IntegerToObject(newElement->key, i);
+                /* The element object. */
+                Gua_StringToObject(newElement->object, dirEntry->d_name);
+                
+                /* Set the target array chain. */
+                newElement->previous = (struct Gua_Element *)previous;
+                newElement->next = NULL;
+                
+                previous->next = (struct Gua_Element *)newElement;
+                previous = newElement;
+            }
+            
+            i++;
+        }
+        
+        /* Update the array length entry. */
+        Gua_SetPObjectLength(list, i);
+        
+        closedir(dirPointer);
+    }
+    
+    return GUA_OK;
+}
+
+/**
+ * Group:
+ *     C
+ *
+ * Function:
+ *     Gua_Integer Fs_MkDir(Gua_String directory)
+ *
+ * Description:
+ *     Create the specified directory.
+ *
+ * Arguments:
+ *     directory,    directory name;
+ *
+ * Results:
+ *     Create the specified directory.
+ */
+Gua_Integer Fs_MkDir(Gua_String directory)
+{
+    if (strlen(directory) > 0) {
+#ifdef _WINDOWS_
+        if (_mkdir(directory) == -1) {
+            return 0;
+        }
+#else
+        if (mkdir(directory, 0777) == -1) {
+            return 0;
+        }
+#endif
+    }
+    
+    return 1;
+}
+
+/**
+ * Group:
+ *     C
+ *
+ * Function:
+ *     void Fs_Name(Gua_String file, Gua_String *name)
+ *
+ * Description:
+ *     Get the file name without path.
+ *
+ * Arguments:
+ *     file,     the file name;
+ *     name,     the file name without path;
+ *
+ * Results:
+ *     Get the file name without path.
+ */
+void Fs_Name(Gua_String file, Gua_String *name)
+{
+    Gua_Short i;
+    Gua_Short j;
+    Gua_Short k;
+    Gua_String newString;
+    
+    if (strlen(file) > 0) {
+        /* Find the directory separator. */
+        for (i = strlen(file) - 1; i > 0; i--) {
+            if ((file[i] == '\\') || (file[i] == '/')) {
+                break;
+            }
+        }
+        
+        /* Skip the directory separator. */
+        if ((file[i] == '\\') || (file[i] == '/')) {
+            i++;
+        }
+        
+        /* Get the file name. */
+        newString = (Gua_String)malloc(sizeof(Gua_Char) * strlen(file) + 1);
+        k = 0;
+        for (j = i; j < strlen(file); j++) {
+            newString[k] = file[j];
+            k++;
+        }
+        newString[k] = '\0';
+    } else {
+        newString = (Gua_String)malloc(sizeof(Gua_Char));
+        newString[0] = '\0';
+    }
+    
+    *name = newString;
+}
+
+/**
+ * Group:
+ *     C
+ *
+ * Function:
+ *     void Fs_Path(Gua_String file, Gua_String *path)
+ *
+ * Description:
+ *     Get the file path.
+ *
+ * Arguments:
+ *     file,     the file name;
+ *     path,     the file path;
+ *
+ * Results:
+ *     Get the file path.
+ */
+void Fs_Path(Gua_String file, Gua_String *path)
+{
+    Gua_Short i;
+    Gua_Short j;
+    Gua_String newString;
+    
+    if (strlen(file) > 0) {
+        /* Find the directory separator. */
+        for (i = strlen(file) - 1; i > 0; i--) {
+            if (((file[i] == '\\') || (file[i] == '/')) && (i != (strlen(file) - 1))) {
+                break;
+            }
+        }
+        
+        /* Get the file path. */
+        newString = (Gua_String)malloc(sizeof(Gua_Char) * strlen(file) + 1);
+        for (j = 0; j < i; j++) {
+            newString[j] = file[j];
+        }
+        newString[j] = '\0';
+    } else {
+        newString = (Gua_String)malloc(sizeof(Gua_Char));
+        newString[0] = '\0';
+    }
+    
+    *path = newString;
+}
+
+/**
+ * Group:
+ *     C
+ *
+ * Function:
+ *     Gua_Status Fs_Rename(Gua_String source, Gua_String target, Gua_String error)
+ *
+ * Description:
+ *     Rename a file.
+ *
+ * Arguments:
+ *     source,    the original file name;
+ *     target,    the new file name;
+ *     error,     a pointer to the error message.
+ *
+ * Results:
+ *     Rename the specified file.
+ */
+Gua_Status Fs_Rename(Gua_String source, Gua_String target, Gua_String error)
+{
+    Gua_String errMessage;
+    
+    if ((strlen(source) > 0) && (strlen(target) > 0)) {
+        if (rename(source, target) != 0) {
+            errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
+            sprintf(errMessage, "%s %-.20s...\n", "can not rename file", source);
+            strcat(error, errMessage);
+            Gua_Free(errMessage);
+            
+            return GUA_ERROR;
+        }
+    }
+    
+    return GUA_OK;
+}
+
+/**
+ * Group:
+ *     C
+ *
+ * Function:
+ *     Gua_Integer Fs_Size(Gua_String file)
+ *
+ * Description:
+ *     Get the file size.
+ *
+ * Arguments:
+ *     file,    the file name;
+ *
+ * Results:
+ *     Return the file size.
+ */
+Gua_Integer Fs_Size(Gua_String file)
+{
+    struct stat fileStat;
+    
+    if (strlen(file) > 0) {
+        if (stat(file, &fileStat) == -1) {
+            return -1;
+        }
+        
+        return (Gua_Integer)(fileStat.st_size);
+    }
+    
+    return -1;
+}
+
+/**
+ * Group:
+ *     C
+ *
+ * Function:
+ *     Gua_Real Fs_Time(Gua_String file)
+ *
+ * Description:
+ *     Get the modification file time.
+ *
+ * Arguments:
+ *     file,    the file name;
+ *
+ * Results:
+ *     Return the modification file time.
+ */
+Gua_Real Fs_Time(Gua_String file)
+{
+    struct stat fileStat;
+    
+    if (strlen(file) > 0) {
+        if (stat(file, &fileStat) == -1) {
+            return -1;
+        }
+        
+        return (Gua_Real)(fileStat.st_mtime);
+    }
+    
+    return -1;
+}
+
+/**
+ * Group:
+ *     C
+ *
+ * Function:
  *     Gua_Status Fs_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gua_Object *object, Gua_String error)
  *
  * Description:
@@ -76,23 +776,6 @@
  */
 Gua_Status Fs_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gua_Object *object, Gua_String error)
 {
-    Gua_Short i;
-    Gua_Short j;
-    Gua_Short k;
-    Gua_Short patternFound;
-    Gua_String realPath;
-    Gua_String unixPath;
-    Gua_String fileName;
-    Gua_String linkName;
-    Gua_Short fileMode;
-    struct stat fileStat;
-    FILE *fs;
-    FILE *ft;
-    Gua_Char c;
-    DIR *dirPointer;
-    struct dirent *dirEntry;
-    Gua_Element *previous;
-    Gua_Element *newElement;
     Gua_String newString;
     Gua_String errMessage;
     
@@ -144,31 +827,7 @@ Gua_Status Fs_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gu
             return GUA_ERROR;
         }
         
-        /* Open input and output files in binary mode for Windows compatibility. */
-        if ((fs = fopen(Gua_ObjectToString(argv[1]), "rb")) == NULL) {
-            errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
-            sprintf(errMessage, "%s %-.20s...\n", "could not open file", Gua_ObjectToString(argv[1]));
-            strcat(error, errMessage);
-            Gua_Free(errMessage);
-            
-            return GUA_ERROR;
-        }
-        if ((ft = fopen(Gua_ObjectToString(argv[2]), "wb")) == NULL) {
-            errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
-            sprintf(errMessage, "%s %-.20s...\n", "could not open file", Gua_ObjectToString(argv[2]));
-            strcat(error, errMessage);
-            Gua_Free(errMessage);
-            
-            return GUA_ERROR;
-        }
-        
-        while (!feof(fs)) {
-            fread(&c, sizeof(Gua_Char), 1, fs);
-            fwrite(&c, sizeof(Gua_Char), 1, ft);
-        }
-        
-        fclose(fs);
-        fclose(ft);
+        return Fs_Copy(Gua_ObjectToString(argv[1]), Gua_ObjectToString(argv[2]), error);
     /**
      * Group:
      *     Scripting
@@ -198,14 +857,7 @@ Gua_Status Fs_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gu
             return GUA_ERROR;
         }
         
-        if (remove(Gua_ObjectToString(argv[1])) != 0) {
-            errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
-            sprintf(errMessage, "%s %-.20s...\n", "can not remove file", Gua_ObjectToString(argv[1]));
-            strcat(error, errMessage);
-            Gua_Free(errMessage);
-            
-            return GUA_ERROR;
-        }
+        return Fs_Delete(Gua_ObjectToString(argv[1]), error);
     /**
      * Group:
      *     Scripting
@@ -235,17 +887,7 @@ Gua_Status Fs_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gu
             return GUA_ERROR;
         }
         
-        if (Gua_ObjectLength(argv[1]) > 0) {
-            fileName = Gua_ObjectToString(argv[1]);
-            
-            fileMode = F_OK;
-            
-            if (access(fileName, fileMode) == -1) {
-                Gua_IntegerToPObject(object, 0);
-            } else {
-                Gua_IntegerToPObject(object, 1);
-            }
-        }
+        Gua_IntegerToPObject(object, Fs_Exists(Gua_ObjectToString(argv[1])));
     /**
      * Group:
      *     Scripting
@@ -275,43 +917,7 @@ Gua_Status Fs_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gu
             return GUA_ERROR;
         }
         
-        if (Gua_ObjectLength(argv[1]) > 0) {
-            fileName = Gua_ObjectToString(argv[1]);
-            
-            /* Find the extension separator. */
-            patternFound = 0;
-            for (i = strlen(fileName) - 1; i > 0; i--) {
-                if ((fileName[i] == '\\') || (fileName[i] == '/')) {
-                    break;
-                }
-                if (fileName[i] == '.') {
-                    patternFound = 1;
-                    break;
-                }
-            }
-            
-            if (patternFound) {
-                /* Skip the extension separator. */
-                if (fileName[i] == '.') {
-                    i++;
-                }
-                
-                /* Get the file name. */
-                newString = (Gua_String)malloc(sizeof(Gua_Char) * strlen(fileName) + 1);
-                k = 0;
-                for (j = i; j < strlen(fileName); j++) {
-                    newString[k] = fileName[j];
-                    k++;
-                }
-                newString[k] = '\0';
-            } else {
-                newString = (Gua_String)malloc(sizeof(Gua_Char));
-                newString[0] = '\0';
-            }
-        } else {
-            newString = (Gua_String)malloc(sizeof(Gua_Char));
-            newString[0] = '\0';
-        }
+        Fs_Extension(Gua_ObjectToString(argv[1]), &newString);
         
         Gua_StringToPObject(object, newString);
         
@@ -345,20 +951,11 @@ Gua_Status Fs_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gu
             return GUA_ERROR;
         }
         
-        realPath = realpath(Gua_ObjectToString(argv[1]), NULL);
+        Fs_FullPath(Gua_ObjectToString(argv[1]), &newString);
         
-        /* Convert Windows path to Unix path. */
-        if (realPath != NULL) {
-            unixPath = (Gua_String)malloc(sizeof(Gua_Char) * strlen(realPath) + 1);
-            for (i = 0; i < strlen(realPath); i++) {
-                unixPath[i] = realPath[i] == '\\' ? '/' : realPath[i];
-            }
-            unixPath[i] = '\0';
-            
-            Gua_Free(realPath);
-            
-            Gua_LinkStringToPObject(object, unixPath);
-        }
+        Gua_StringToPObject(object, newString);
+        
+        Gua_Free(newString);
     /**
      * Group:
      *     Scripting
@@ -388,24 +985,7 @@ Gua_Status Fs_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gu
             return GUA_ERROR;
         }
         
-        if (Gua_ObjectLength(argv[1]) > 0) {
-            fileName = Gua_ObjectToString(argv[1]);
-            
-            if (stat(fileName, &fileStat) == -1) {
-                errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
-                sprintf(errMessage, "%s %-.20s...\n", "could not stat file ", fileName);
-                strcat(error, errMessage);
-                Gua_Free(errMessage);
-                
-                return GUA_ERROR;
-            }
-            
-            if (S_ISDIR(fileStat.st_mode)) {
-                Gua_IntegerToPObject(object, 1);
-            } else {
-                Gua_IntegerToPObject(object, 0);
-            }
-        }
+        Gua_IntegerToPObject(object, Fs_IsDirectory(Gua_ObjectToString(argv[1])));
     /**
      * Group:
      *     Scripting
@@ -435,24 +1015,7 @@ Gua_Status Fs_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gu
             return GUA_ERROR;
         }
         
-        if (Gua_ObjectLength(argv[1]) > 0) {
-            fileName = Gua_ObjectToString(argv[1]);
-#ifdef _WINDOWS_
-            if ((strstr(fileName, ".bat") != NULL) || (strstr(fileName, ".com") != NULL) || (strstr(fileName, ".exe") != NULL)) {
-                Gua_IntegerToPObject(object, 1);
-            } else {
-                Gua_IntegerToPObject(object, 0);
-            }
-#else
-            fileMode = X_OK;
-            
-            if (access(fileName, fileMode) == -1) {
-                Gua_IntegerToPObject(object, 0);
-            } else {
-                Gua_IntegerToPObject(object, 1);
-            }
-#endif
-        }
+        Gua_IntegerToPObject(object, Fs_IsExecutable(Gua_ObjectToString(argv[1])));
     /**
      * Group:
      *     Scripting
@@ -482,17 +1045,7 @@ Gua_Status Fs_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gu
             return GUA_ERROR;
         }
         
-        if (Gua_ObjectLength(argv[1]) > 0) {
-            fileName = Gua_ObjectToString(argv[1]);
-            
-            fileMode = R_OK;
-            
-            if (access(fileName, fileMode) == -1) {
-                Gua_IntegerToPObject(object, 0);
-            } else {
-                Gua_IntegerToPObject(object, 1);
-            }
-        }
+        Gua_IntegerToPObject(object, Fs_IsReadable(Gua_ObjectToString(argv[1])));
     /**
      * Group:
      *     Scripting
@@ -522,17 +1075,7 @@ Gua_Status Fs_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gu
             return GUA_ERROR;
         }
         
-        if (Gua_ObjectLength(argv[1]) > 0) {
-            fileName = Gua_ObjectToString(argv[1]);
-            
-            fileMode = W_OK;
-            
-            if (access(fileName, fileMode) == -1) {
-                Gua_IntegerToPObject(object, 0);
-            } else {
-                Gua_IntegerToPObject(object, 1);
-            }
-        }
+        Gua_IntegerToPObject(object, Fs_IsWritable(Gua_ObjectToString(argv[1])));
     /**
      * Group:
      *     Scripting
@@ -570,20 +1113,7 @@ Gua_Status Fs_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gu
             return GUA_ERROR;
         }
         
-        if ((Gua_ObjectLength(argv[1]) > 0) && (Gua_ObjectLength(argv[2]) > 0)) {
-            fileName = Gua_ObjectToString(argv[1]);
-            linkName = Gua_ObjectToString(argv[2]);
-            
-#ifdef _WINDOWS_
-            Gua_IntegerToPObject(object, 0);
-#else
-            if (symlink(fileName, linkName) == -1) {
-                Gua_IntegerToPObject(object, 0);
-            } else {
-                Gua_IntegerToPObject(object, 1);
-            }
-#endif
-        }
+        Gua_IntegerToPObject(object, Fs_Link(Gua_ObjectToString(argv[1]), Gua_ObjectToString(argv[2])));
     /**
      * Group:
      *     Scripting
@@ -613,61 +1143,7 @@ Gua_Status Fs_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gu
             return GUA_ERROR;
         }
         
-        if (Gua_ObjectLength(argv[1]) > 0) {
-            fileName = Gua_ObjectToString(argv[1]);
-            
-            if ((dirPointer = opendir(fileName)) == NULL) {
-                errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
-                sprintf(errMessage, "%s %-.20s...\n", "could not open directory", Gua_ObjectToString(argv[1]));
-                strcat(error, errMessage);
-                Gua_Free(errMessage);
-                
-                return GUA_ERROR;
-            }
-            
-            i = 0;
-            
-            while ((dirEntry = readdir(dirPointer)) != NULL) {
-                if (i == 0) {
-                    /* Create the first element. */
-                    newElement = (Gua_Element *)Gua_Alloc(sizeof(Gua_Element));
-                    /* The element key. */
-                    Gua_IntegerToObject(newElement->key, i);
-                    /* The element object. */
-                    Gua_StringToObject(newElement->object, dirEntry->d_name);
-                    
-                    /* Set the target array chain. */
-                    newElement->previous = NULL;
-                    newElement->next = NULL;
-                    
-                    /* Link the first element. */
-                    Gua_ArrayToPObject(object, (struct Gua_Element *)newElement, 1);
-                    
-                    previous = (Gua_Element *)Gua_PObjectToArray(object);
-                } else {
-                    /* Create a new element. */
-                    newElement = (Gua_Element *)Gua_Alloc(sizeof(Gua_Element));
-                    /* The element key. */
-                    Gua_IntegerToObject(newElement->key, i);
-                    /* The element object. */
-                    Gua_StringToObject(newElement->object, dirEntry->d_name);
-                    
-                    /* Set the target array chain. */
-                    newElement->previous = (struct Gua_Element *)previous;
-                    newElement->next = NULL;
-                    
-                    previous->next = (struct Gua_Element *)newElement;
-                    previous = newElement;
-                }
-                
-                i++;
-            }
-            
-            /* Update the array length entry. */
-            Gua_SetPObjectLength(object, i + 1);
-            
-            closedir(dirPointer);
-        }
+        return Fs_List(Gua_ObjectToString(argv[1]), object, error);
     /**
      * Group:
      *     Scripting
@@ -697,23 +1173,7 @@ Gua_Status Fs_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gu
             return GUA_ERROR;
         }
         
-        if (Gua_ObjectLength(argv[1]) > 0) {
-            fileName = Gua_ObjectToString(argv[1]);
-            
-#ifdef _WINDOWS_
-            if (_mkdir(fileName) == -1) {
-                Gua_IntegerToPObject(object, 0);
-            } else {
-                Gua_IntegerToPObject(object, 1);
-            }
-#else
-            if (mkdir(fileName, 0777) == -1) {
-                Gua_IntegerToPObject(object, 0);
-            } else {
-                Gua_IntegerToPObject(object, 1);
-            }
-#endif
-        }
+        Gua_IntegerToPObject(object, Fs_MkDir(Gua_ObjectToString(argv[1])));
     /**
      * Group:
      *     Scripting
@@ -743,33 +1203,7 @@ Gua_Status Fs_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gu
             return GUA_ERROR;
         }
         
-        if (Gua_ObjectLength(argv[1]) > 0) {
-            fileName = Gua_ObjectToString(argv[1]);
-            
-            /* Find the directory separator. */
-            for (i = strlen(fileName) - 1; i > 0; i--) {
-                if ((fileName[i] == '\\') || (fileName[i] == '/')) {
-                    break;
-                }
-            }
-            
-            /* Skip the directory separator. */
-            if ((fileName[i] == '\\') || (fileName[i] == '/')) {
-                i++;
-            }
-            
-            /* Get the file name. */
-            newString = (Gua_String)malloc(sizeof(Gua_Char) * strlen(fileName) + 1);
-            k = 0;
-            for (j = i; j < strlen(fileName); j++) {
-                newString[k] = fileName[j];
-                k++;
-            }
-            newString[k] = '\0';
-        } else {
-            newString = (Gua_String)malloc(sizeof(Gua_Char));
-            newString[0] = '\0';
-        }
+        Fs_Name(Gua_ObjectToString(argv[1]), &newString);
         
         Gua_StringToPObject(object, newString);
         
@@ -803,26 +1237,7 @@ Gua_Status Fs_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gu
             return GUA_ERROR;
         }
         
-        if (Gua_ObjectLength(argv[1]) > 0) {
-            fileName = Gua_ObjectToString(argv[1]);
-            
-            /* Find the directory separator. */
-            for (i = strlen(fileName) - 1; i > 0; i--) {
-                if (((fileName[i] == '\\') || (fileName[i] == '/')) && (i != (strlen(fileName) - 1))) {
-                    break;
-                }
-            }
-            
-            /* Get the file path. */
-            newString = (Gua_String)malloc(sizeof(Gua_Char) * strlen(fileName) + 1);
-            for (j = 0; j < i; j++) {
-                newString[j] = fileName[j];
-            }
-            newString[j] = '\0';
-        } else {
-            newString = (Gua_String)malloc(sizeof(Gua_Char));
-            newString[0] = '\0';
-        }
+        Fs_Path(Gua_ObjectToString(argv[1]), &newString);
         
         Gua_StringToPObject(object, newString);
         
@@ -864,14 +1279,7 @@ Gua_Status Fs_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gu
             return GUA_ERROR;
         }
         
-        if (rename(Gua_ObjectToString(argv[1]), Gua_ObjectToString(argv[2])) != 0) {
-            errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
-            sprintf(errMessage, "%s %-.20s...\n", "can not rename file", Gua_ObjectToString(argv[1]));
-            strcat(error, errMessage);
-            Gua_Free(errMessage);
-            
-            return GUA_ERROR;
-        }
+        return Fs_Rename(Gua_ObjectToString(argv[1]), Gua_ObjectToString(argv[2]), error);
     /**
      * Group:
      *     Scripting
@@ -901,22 +1309,7 @@ Gua_Status Fs_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gu
             return GUA_ERROR;
         }
         
-        if (Gua_ObjectLength(argv[1]) > 0) {
-            fileName = Gua_ObjectToString(argv[1]);
-            
-            fileMode = 0;
-            
-            if (stat(fileName, &fileStat) == -1) {
-                errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
-                sprintf(errMessage, "%s %-.20s...\n", "could not stat file ", fileName);
-                strcat(error, errMessage);
-                Gua_Free(errMessage);
-                
-                return GUA_ERROR;
-            }
-            
-            Gua_IntegerToPObject(object, fileStat.st_size);
-        }
+        Gua_IntegerToPObject(object, Fs_Size(Gua_ObjectToString(argv[1])));
     /**
      * Group:
      *     Scripting
@@ -946,22 +1339,7 @@ Gua_Status Fs_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gu
             return GUA_ERROR;
         }
         
-        if (Gua_ObjectLength(argv[1]) > 0) {
-            fileName = Gua_ObjectToString(argv[1]);
-            
-            fileMode = 0;
-            
-            if (stat(fileName, &fileStat) == -1) {
-                errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
-                sprintf(errMessage, "%s %-.20s...\n", "could not stat file ", fileName);
-                strcat(error, errMessage);
-                Gua_Free(errMessage);
-                
-                return GUA_ERROR;
-            }
-            
-            Gua_RealToPObject(object, fileStat.st_mtime);
-        }
+        Gua_RealToPObject(object, Fs_Time(Gua_ObjectToString(argv[1])));
     }
 
     return GUA_OK;

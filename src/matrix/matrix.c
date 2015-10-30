@@ -54,7 +54,7 @@
  *     b,        a structure containing the return object of the function;
  *     error,    a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     The function returns the matrix b triangular equivalent to a and
  *     the determinant.
  */
@@ -155,7 +155,7 @@ Gua_Real Matrix_GaussMatrix(Gua_Object *a, Gua_Object *b, Gua_String error)
  *     b,        a structure containing the return object of the function;
  *     error,    a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     The function returns the matrix b diagonal equivalent to a and
  *     the determinant.
  */
@@ -258,7 +258,7 @@ Gua_Real Matrix_JordanMatrix(Gua_Object *a, Gua_Object *b, Gua_String error)
  *     object,    a structure containing the return object of the function;
  *     error,     a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     The function returns the matrix determinant.
  */
 Gua_Status Matrix_DetMatrix(Gua_Object *a, Gua_Object *object, Gua_String error)
@@ -310,7 +310,7 @@ Gua_Status Matrix_DetMatrix(Gua_Object *a, Gua_Object *object, Gua_String error)
  *     b,        a structure containing the return object of the function;
  *     error,    a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     The function returns the transpose of a
  */
 Gua_Status Matrix_TransMatrix(Gua_Object *a, Gua_Object *b, Gua_String error)
@@ -394,7 +394,7 @@ Gua_Status Matrix_TransMatrix(Gua_Object *a, Gua_Object *b, Gua_String error)
  *     c,        a structure containing the return object of the function;
  *     error,    a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     The function returns the cross product of two vectors a and b.
  */
 Gua_Status Matrix_Cross(Gua_Object *a, Gua_Object *b, Gua_Object *c, Gua_String error)
@@ -585,7 +585,7 @@ Gua_Status Matrix_Cross(Gua_Object *a, Gua_Object *b, Gua_Object *c, Gua_String 
  *     c,        a structure containing the return object of the function;
  *     error,    a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     The function returns the dot product of two vectors a and b.
  */
 Gua_Status Matrix_Dot(Gua_Object *a, Gua_Object *b, Gua_Object *c, Gua_String error)
@@ -755,7 +755,7 @@ Gua_Status Matrix_Dot(Gua_Object *a, Gua_Object *b, Gua_Object *c, Gua_String er
  *     object,    a structure containing the return object of the function;
  *     error,     a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     The function returns the sum of all cells in the matrix.
  */
 Gua_Status Matrix_Sum(Gua_Object *a, Gua_Object *object, Gua_String error)
@@ -824,7 +824,7 @@ Gua_Status Matrix_Sum(Gua_Object *a, Gua_Object *object, Gua_String error)
  *     object,    a structure containing the return object of the function;
  *     error,     a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     The function returns the sum of specified cells in the matrix.
  */
 Gua_Status Matrix_SumCells(Gua_Object *a, Gua_Object x1, Gua_Object y1, Gua_Object x2, Gua_Object y2, Gua_Object *object, Gua_String error)
@@ -930,7 +930,7 @@ Gua_Status Matrix_SumCells(Gua_Object *a, Gua_Object x1, Gua_Object y1, Gua_Obje
  *     object,    a structure containing the return object of the function;
  *     error,     a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     The function returns the average of all cells in the matrix.
  */
 Gua_Status Matrix_Avg(Gua_Object *a, Gua_Object *object, Gua_String error)
@@ -1002,7 +1002,7 @@ Gua_Status Matrix_Avg(Gua_Object *a, Gua_Object *object, Gua_String error)
  *     object,    a structure containing the return object of the function;
  *     error,     a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     The function returns the average of specified cells in the matrix.
  */
 Gua_Status Matrix_AvgCells(Gua_Object *a, Gua_Object x1, Gua_Object y1, Gua_Object x2, Gua_Object y2, Gua_Object *object, Gua_String error)
@@ -1115,7 +1115,7 @@ Gua_Status Matrix_AvgCells(Gua_Object *a, Gua_Object x1, Gua_Object y1, Gua_Obje
  *     object,    a structure containing the return object of the function;
  *     error,     a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     The function returns the number of all cells in the matrix.
  */
 Gua_Status Matrix_Count(Gua_Object *a, Gua_Object *object, Gua_String error)
@@ -1192,7 +1192,7 @@ Gua_Status Matrix_Count(Gua_Object *a, Gua_Object *object, Gua_String error)
  *     object,    a structure containing the return object of the function;
  *     error,     a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     The function returns the number of specified cells in the matrix.
  */
 Gua_Status Matrix_CountCells(Gua_Object *a, Gua_Object x1, Gua_Object y1, Gua_Object x2, Gua_Object y2, Gua_Object *object, Gua_String error)
@@ -1307,7 +1307,7 @@ Gua_Status Matrix_CountCells(Gua_Object *a, Gua_Object x1, Gua_Object y1, Gua_Ob
  *     object,    a structure containing the return object of the function;
  *     error,     a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     The function makes a copy of a matrix to other deleting the specified row.
  */
 Gua_Status Matrix_DelRow(Gua_Object *source, Gua_Object n, Gua_Object *object, Gua_String error)
@@ -1417,7 +1417,7 @@ Gua_Status Matrix_DelRow(Gua_Object *source, Gua_Object n, Gua_Object *object, G
  *     object,    a structure containing the return object of the function;
  *     error,     a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     The function makes a copy of a matrix to other deleting the specified Column.
  */
 Gua_Status Matrix_DelCol(Gua_Object *source, Gua_Object n, Gua_Object *object, Gua_String error)
@@ -1526,7 +1526,7 @@ Gua_Status Matrix_DelCol(Gua_Object *source, Gua_Object n, Gua_Object *object, G
  *     object,    a structure containing the return object of the function;
  *     error,     a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     The function returns the min object of all cells in the matrix.
  */
 Gua_Status Matrix_Min(Gua_Object *a, Gua_Object *object, Gua_String error)
@@ -1607,7 +1607,7 @@ Gua_Status Matrix_Min(Gua_Object *a, Gua_Object *object, Gua_String error)
  *     object,    a structure containing the return object of the function;
  *     error,     a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     The function returns the min of specified cells in the matrix.
  */
 Gua_Status Matrix_MinCells(Gua_Object *a, Gua_Object x1, Gua_Object y1, Gua_Object x2, Gua_Object y2, Gua_Object *object, Gua_String error)
@@ -1725,7 +1725,7 @@ Gua_Status Matrix_MinCells(Gua_Object *a, Gua_Object x1, Gua_Object y1, Gua_Obje
  *     object,    a structure containing the return object of the function;
  *     error,     a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     The function returns the max object of all cells in the matrix.
  */
 Gua_Status Matrix_Max(Gua_Object *a, Gua_Object *object, Gua_String error)
@@ -1798,7 +1798,7 @@ Gua_Status Matrix_Max(Gua_Object *a, Gua_Object *object, Gua_String error)
  *     object,    a structure containing the return object of the function;
  *     error,     a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     The function returns the max of specified cells in the matrix.
  */
 Gua_Status Matrix_MaxCells(Gua_Object *a, Gua_Object x1, Gua_Object y1, Gua_Object x2, Gua_Object y2, Gua_Object *object, Gua_String error)
@@ -1911,7 +1911,7 @@ Gua_Status Matrix_MaxCells(Gua_Object *a, Gua_Object x1, Gua_Object y1, Gua_Obje
  *     object,    a structure containing the return object of the function;
  *     error,     a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     The return object of the wrapped funcion.
  */
 Gua_Status Matrix_MatrixFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gua_Object *object, Gua_String error)
@@ -2553,7 +2553,7 @@ Gua_Status Matrix_MatrixFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object
  *     env,       a pointer to the environment variables;
  *     error,     a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     Install the matrix functions.
  */
 Gua_Status Matrix_Init(void *nspace, int argc, char *argv[], char **env, Gua_String error)

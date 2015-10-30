@@ -27,7 +27,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * RCS: @(#) $Id: sqlite.c,v 1.1 2014/07/22 14:27:00 monteiro Exp $
+ * RCS: @(#) $Id: sqlite.c,v 2.0 2015/10/16 17:31:00 monteiro Exp $
  * 
  */
 
@@ -39,33 +39,48 @@
 
 #define ERROR_SIZE  65536
 
-Gua_Namespace *globalNameSpace;
+#define GUA_SQLITE_FUNCTION_EVAL        0
+#define GUA_SQLITE_FUNCTION_EXECUTE     1
+#define GUA_SQLITE_FUNCTION_EXISTS      2
+#define GUA_SQLITE_FUNCTION_ONE_COLUMN  3
+
+typedef struct {
+    Gua_Namespace *nspace;
+    Gua_String script;
+    Gua_Object object;
+    Gua_Integer function;
+    Gua_String error;
+    Gua_Status status;
+} Sqlite_CallbackArgs;
 
 /**
  * Group:
  *     C
  *
  * Function:
- *     int Sqlite_ExecCallback(void *callback, int n, char **key, char **value)
+ *     int Sqlite_Callback(void *callback, int n, char **key, char **value)
  *
  * Description:
- *     SQLite exec function callback.
+ *     SQLite callback.
  *
  * Arguments:
- *     callback,    the GuaraScript function callback name;
+ *     argument,    the Sqlite callback argument;
  *     n,           the number of columns;
  *     key,         an array containing the columns names;
  *     value,       an array containing the columns values.
  *
  * Results:
- *     This function is a wrapper to the keyboard callback.
+ *     This function is the SQLite callback.
  */
-int Sqlite_ExecCallback(void *callback, int n, char **value, char **key)
+int Sqlite_Callback(void *argument, int n, char **value, char **key)
 {
+    Sqlite_CallbackArgs *args;
     Gua_Function function;
     Gua_Short argc;
     Gua_Object *argv;
     Gua_Object array;
+    Gua_Integer i;
+    Gua_String p;
     Gua_Object object;
     Gua_Status status;
     Gua_String error;
@@ -75,60 +90,121 @@ int Sqlite_ExecCallback(void *callback, int n, char **value, char **key)
     Gua_ClearObject(array);
     Gua_ClearObject(object);
     
-    returnCode = 0;
+    args = (Sqlite_CallbackArgs *)argument;
     
-    error = (Gua_String)Gua_Alloc(sizeof(char) * ERROR_SIZE);
-    *error = '\0';
+    Gua_ClearObject(args->object);
     
-    /* Convert SQLite row data to a GuaraScript array. */
-    Gua_KeyValuePairsToArray(n, key, value, &array);
+    returnCode = 1;
     
-    /* Prepare the arguments array to be passed to the callback function. */
-    argc = 2;
-    argv = (Gua_Object *)Gua_Alloc(sizeof(Gua_Object) * argc);
-    
-    Gua_ClearArguments(argc, argv);
-    
-    Gua_LinkStringToObject(argv[0], (Gua_String)callback);
-    Gua_SetStoredObject(argv[0]);
-    
-    Gua_LinkObjects(argv[1], array);
-    
-    /* Call the callback function. */
-    if (Gua_GetFunction(globalNameSpace, (Gua_String)callback, &function) == GUA_OK) {
-        status = function.pointer(globalNameSpace, argc, argv, &object, error);
-    } else {
-        status = GUA_ERROR;
+    if (args->function == GUA_SQLITE_FUNCTION_EVAL) {
+        error = (Gua_String)Gua_Alloc(sizeof(char) * ERROR_SIZE);
+        *error = '\0';
         
-        errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
-        sprintf(errMessage, "%s %-.20s...\n", "undefined function", (Gua_String)callback);
-        strcat(error, errMessage);
-        Gua_Free(errMessage);
-    }
-    
-    /* Get the return code. */
-    if (Gua_ObjectType(object) == OBJECT_TYPE_INTEGER) {
-        returnCode = Gua_ObjectToInteger(object);
-    }
-    
-    Gua_FreeArguments(argc, argv);
-    
-    if (!Gua_IsObjectStored(object)) {
-        Gua_FreeObject(&object);
-    }
-    
-    /* Show the error message, if any. */
-    if (status != GUA_OK) {
-        if (!((status == GUA_RETURN) || (status == GUA_EXIT))) {
-            printf("\nError: %s", error);
-            
-            Gua_Free(error);
+        status = GUA_OK;
+        
+        for (i = 0; i < n; i ++) {
+            Gua_LinkStringToObject(object, value[i]);
+            Gua_SetStoredObject(object);
+            if (Gua_SetVariable((Gua_Namespace *)(args->nspace), key[i], &object, SCOPE_GLOBAL) != GUA_OK) {
+                errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
+                sprintf(errMessage, "%s %-.20s...\n", "can't set variable", value[i]);
+                strcat(error, errMessage);
+                Gua_Free(errMessage);
+                
+                status = GUA_ERROR;
+                
+                break;
+            }
+        }
+        
+        if (status != GUA_OK) {
+            args->error = error;
+            args->status = status;
             
             return 1;
         }
+        
+        p = args->script;
+        p = Gua_Expression((Gua_Namespace *)(args->nspace), p, &object, &status, error);
+        if (!Gua_IsObjectStored(object)) {
+            Gua_FreeObject(&object);
+        }
+        
+        if (status != GUA_OK) {
+            args->error = error;
+            args->status = status;
+            
+            return 1;
+        }
+        
+        Gua_Free(error);
+        
+        return 0;
+    } else if (args->function == GUA_SQLITE_FUNCTION_EXECUTE) {
+        error = (Gua_String)Gua_Alloc(sizeof(char) * ERROR_SIZE);
+        *error = '\0';
+        
+        /* Convert SQLite row data to a GuaraScript array. */
+        Gua_KeyValuePairsToArray(n, key, value, &array);
+        
+        /* Prepare the arguments array to be passed to the callback function. */
+        argc = 2;
+        argv = (Gua_Object *)Gua_Alloc(sizeof(Gua_Object) * argc);
+        
+        Gua_ClearArguments(argc, argv);
+        
+        Gua_LinkStringToObject(argv[0], (Gua_String)(args->script));
+        Gua_SetStoredObject(argv[0]);
+        
+        Gua_LinkObjects(argv[1], array);
+        
+        /* Call the callback function. */
+        if (Gua_GetFunction((Gua_Namespace *)(args->nspace), (Gua_String)(args->script), &function) == GUA_OK) {
+            status = function.pointer((Gua_Namespace *)(args->nspace), argc, argv, &object, error);
+        } else {
+            status = GUA_ERROR;
+            
+            errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
+            sprintf(errMessage, "%s %-.20s...\n", "undefined function", (Gua_String)(args->script));
+            strcat(error, errMessage);
+            Gua_Free(errMessage);
+        }
+        
+        /* Get the return code. */
+        if (Gua_ObjectType(object) == OBJECT_TYPE_INTEGER) {
+            returnCode = Gua_ObjectToInteger(object);
+        }
+        
+        Gua_FreeArguments(argc, argv);
+        
+        if (!Gua_IsObjectStored(object)) {
+            Gua_FreeObject(&object);
+        }
+        
+        /* Show the error message, if any. */
+        if (status != GUA_OK) {
+            if (!((status == GUA_RETURN) || (status == GUA_EXIT))) {
+                args->error = error;
+                args->status = status;
+                
+                Gua_Free(error);
+                
+                return 1;
+            }
+        }
+        
+        Gua_Free(error);
+    } else if (args->function == GUA_SQLITE_FUNCTION_EXISTS) {
+        if (n > 0) {
+            Gua_IntegerToObject(args->object, 1);
+        } else {
+            Gua_IntegerToObject(args->object, 0);
+        }
+    } else if (args->function == GUA_SQLITE_FUNCTION_ONE_COLUMN) {
+        if (n > 0) {
+            Gua_StringToObject(args->object, value[0]);
+        }
     }
-    
-    Gua_Free(error);
     
     return returnCode;
 }
@@ -160,8 +236,7 @@ Gua_Status Sqlite_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv
     sqlite3 *db;
     Gua_Short returnCode;
     Gua_String errMessage;
-    
-    globalNameSpace = nspace;
+    Sqlite_CallbackArgs args;
     
     Gua_ClearPObject(object);
     
@@ -216,7 +291,7 @@ Gua_Status Sqlite_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv
         }
         
         Gua_SetHandlePointer((Gua_Handle *)h, NULL);
-    } else if (strcmp(Gua_ObjectToString(argv[0]), "sqliteExecute") == 0) {
+    } else if (strcmp(Gua_ObjectToString(argv[0]), "sqliteEval") == 0) {
         if ((argc < 3) || (argc > 4)) {
             errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
             sprintf(errMessage, "%s %-.20s...\n", "wrong number of arguments for function", Gua_ObjectToString(argv[0]));
@@ -266,11 +341,228 @@ Gua_Status Sqlite_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv
         
         db = (sqlite3 *)Gua_GetHandlePointer((Gua_Handle *)h);
         
+        args.status = GUA_OK;
+        
         if (argc == 3) {
-            returnCode = sqlite3_exec(db, Gua_ObjectToString(argv[2]), Sqlite_ExecCallback, NULL, &errMessage);
+            returnCode = sqlite3_exec(db, Gua_ObjectToString(argv[2]), Sqlite_Callback, NULL, &errMessage);
         } else {
-            returnCode = sqlite3_exec(db, Gua_ObjectToString(argv[2]), Sqlite_ExecCallback, Gua_ObjectToString(argv[3]), &errMessage);
+            args.nspace = nspace;
+            args.script = Gua_ObjectToString(argv[3]);
+            args.function = GUA_SQLITE_FUNCTION_EVAL;
+            args.error = NULL;
+            args.status = GUA_OK;
+            
+            returnCode = sqlite3_exec(db, Gua_ObjectToString(argv[2]), Sqlite_Callback, &args, &errMessage);
         }
+        
+        if (args.status != GUA_OK) {
+            strcat(error, args.error);
+            Gua_Free(args.error);
+            
+            if (returnCode != SQLITE_OK) {
+                sqlite3_free(errMessage);
+            }
+            
+            return GUA_ERROR;
+        }
+        
+        if (returnCode != SQLITE_OK) {
+            strcat(error, errMessage);
+            sqlite3_free(errMessage);
+            
+            if (returnCode != SQLITE_ABORT) {
+                return GUA_ERROR;
+            }
+        }
+    } else if (strcmp(Gua_ObjectToString(argv[0]), "sqliteExecute") == 0) {
+        if ((argc < 3) || (argc > 4)) {
+            errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
+            sprintf(errMessage, "%s %-.20s...\n", "wrong number of arguments for function", Gua_ObjectToString(argv[0]));
+            strcat(error, errMessage);
+            Gua_Free(errMessage);
+            
+            return GUA_ERROR;
+        }
+
+        if (Gua_ObjectType(argv[1]) != OBJECT_TYPE_HANDLE) {
+            errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
+            sprintf(errMessage, "%s %-.20s...\n", "illegal argument 1 for function", Gua_ObjectToString(argv[0]));
+            strcat(error, errMessage);
+            Gua_Free(errMessage);
+            
+            return GUA_ERROR;
+        }
+        if (Gua_ObjectType(argv[2]) != OBJECT_TYPE_STRING) {
+            errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
+            sprintf(errMessage, "%s %-.20s...\n", "illegal argument 1 for function", Gua_ObjectToString(argv[0]));
+            strcat(error, errMessage);
+            Gua_Free(errMessage);
+            
+            return GUA_ERROR;
+        }
+        if (argc == 4) {
+            if (Gua_ObjectType(argv[3]) != OBJECT_TYPE_STRING) {
+                errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
+                sprintf(errMessage, "%s %-.20s...\n", "illegal argument 1 for function", Gua_ObjectToString(argv[0]));
+                strcat(error, errMessage);
+                Gua_Free(errMessage);
+                
+                return GUA_ERROR;
+            }
+        }
+        
+        h = (Gua_Handle *)Gua_ObjectToHandle(argv[1]);
+	
+        if (strcmp((Gua_String)Gua_GetHandleType(h), "Sqlite") != 0) {
+            errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
+            sprintf(errMessage, "%s %-.20s...\n", "illegal argument 1 for function", Gua_ObjectToString(argv[0]));
+            strcat(error, errMessage);
+            Gua_Free(errMessage);
+            
+            return GUA_ERROR;
+        }
+        
+        args.status = GUA_OK;
+        
+        db = (sqlite3 *)Gua_GetHandlePointer((Gua_Handle *)h);
+        
+        if (argc == 3) {
+            returnCode = sqlite3_exec(db, Gua_ObjectToString(argv[2]), Sqlite_Callback, NULL, &errMessage);
+        } else {
+            args.nspace = nspace;
+            args.script = Gua_ObjectToString(argv[3]);
+            args.function = GUA_SQLITE_FUNCTION_EXECUTE;
+            args.error = NULL;
+            args.status = GUA_OK;
+            
+            returnCode = sqlite3_exec(db, Gua_ObjectToString(argv[2]), Sqlite_Callback, &args, &errMessage);
+        }
+        
+        if (args.status != GUA_OK) {
+            strcat(error, args.error);
+            Gua_Free(args.error);
+            
+            if (returnCode != SQLITE_OK) {
+                sqlite3_free(errMessage);
+            }
+            
+            return GUA_ERROR;
+        }
+        
+        if (returnCode != SQLITE_OK) {
+            strcat(error, errMessage);
+            sqlite3_free(errMessage);
+            
+            if (returnCode != SQLITE_ABORT) {
+                return GUA_ERROR;
+            }
+        }
+    } else if (strcmp(Gua_ObjectToString(argv[0]), "sqliteExists") == 0) {
+        if (argc != 3) {
+            errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
+            sprintf(errMessage, "%s %-.20s...\n", "wrong number of arguments for function", Gua_ObjectToString(argv[0]));
+            strcat(error, errMessage);
+            Gua_Free(errMessage);
+            
+            return GUA_ERROR;
+        }
+
+        if (Gua_ObjectType(argv[1]) != OBJECT_TYPE_HANDLE) {
+            errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
+            sprintf(errMessage, "%s %-.20s...\n", "illegal argument 1 for function", Gua_ObjectToString(argv[0]));
+            strcat(error, errMessage);
+            Gua_Free(errMessage);
+            
+            return GUA_ERROR;
+        }
+        if (Gua_ObjectType(argv[2]) != OBJECT_TYPE_STRING) {
+            errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
+            sprintf(errMessage, "%s %-.20s...\n", "illegal argument 1 for function", Gua_ObjectToString(argv[0]));
+            strcat(error, errMessage);
+            Gua_Free(errMessage);
+            
+            return GUA_ERROR;
+        }
+        
+        h = (Gua_Handle *)Gua_ObjectToHandle(argv[1]);
+	
+        if (strcmp((Gua_String)Gua_GetHandleType(h), "Sqlite") != 0) {
+            errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
+            sprintf(errMessage, "%s %-.20s...\n", "illegal argument 1 for function", Gua_ObjectToString(argv[0]));
+            strcat(error, errMessage);
+            Gua_Free(errMessage);
+            
+            return GUA_ERROR;
+        }
+        
+        db = (sqlite3 *)Gua_GetHandlePointer((Gua_Handle *)h);
+        
+        args.nspace = nspace;
+        args.script = NULL;
+        args.function = GUA_SQLITE_FUNCTION_EXISTS;
+        args.error = NULL;
+        args.status = GUA_OK;
+        
+        returnCode = sqlite3_exec(db, Gua_ObjectToString(argv[2]), Sqlite_Callback, &args, &errMessage);
+        
+        if (returnCode != SQLITE_OK) {
+            sqlite3_free(errMessage);
+        }
+        
+        if (Gua_ObjectType(args.object) == OBJECT_TYPE_INTEGER) {
+            Gua_LinkToPObject(object, args.object);
+        } else {
+            Gua_IntegerToPObject(object, 0);
+        }
+    } else if (strcmp(Gua_ObjectToString(argv[0]), "sqliteOneColumn") == 0) {
+        if (argc != 3) {
+            errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
+            sprintf(errMessage, "%s %-.20s...\n", "wrong number of arguments for function", Gua_ObjectToString(argv[0]));
+            strcat(error, errMessage);
+            Gua_Free(errMessage);
+            
+            return GUA_ERROR;
+        }
+
+        if (Gua_ObjectType(argv[1]) != OBJECT_TYPE_HANDLE) {
+            errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
+            sprintf(errMessage, "%s %-.20s...\n", "illegal argument 1 for function", Gua_ObjectToString(argv[0]));
+            strcat(error, errMessage);
+            Gua_Free(errMessage);
+            
+            return GUA_ERROR;
+        }
+        if (Gua_ObjectType(argv[2]) != OBJECT_TYPE_STRING) {
+            errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
+            sprintf(errMessage, "%s %-.20s...\n", "illegal argument 1 for function", Gua_ObjectToString(argv[0]));
+            strcat(error, errMessage);
+            Gua_Free(errMessage);
+            
+            return GUA_ERROR;
+        }
+        
+        h = (Gua_Handle *)Gua_ObjectToHandle(argv[1]);
+	
+        if (strcmp((Gua_String)Gua_GetHandleType(h), "Sqlite") != 0) {
+            errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
+            sprintf(errMessage, "%s %-.20s...\n", "illegal argument 1 for function", Gua_ObjectToString(argv[0]));
+            strcat(error, errMessage);
+            Gua_Free(errMessage);
+            
+            return GUA_ERROR;
+        }
+        
+        db = (sqlite3 *)Gua_GetHandlePointer((Gua_Handle *)h);
+        
+        args.nspace = nspace;
+        args.script = NULL;
+        args.function = GUA_SQLITE_FUNCTION_ONE_COLUMN;
+        args.error = NULL;
+        args.status = GUA_OK;
+        
+        returnCode = sqlite3_exec(db, Gua_ObjectToString(argv[2]), Sqlite_Callback, &args, &errMessage);
+        
+        Gua_LinkToPObject(object, args.object);
         
         if (returnCode != SQLITE_OK) {
             strcat(error, errMessage);
@@ -351,9 +643,30 @@ Gua_Status Sqlite_Init(void *nspace, int argc, char *argv[], char **env, Gua_Str
         Gua_Free(errMessage);
     }
     Gua_LinkCFunctionToFunction(function, Sqlite_FunctionWrapper);
+    if (Gua_SetFunction((Gua_Namespace *)nspace, "sqliteEval", &function) != GUA_OK) {
+        errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
+        sprintf(errMessage, "%s %-.20s...\n", "can't set function", "sqliteEval");
+        strcat(error, errMessage);
+        Gua_Free(errMessage);
+    }
+    Gua_LinkCFunctionToFunction(function, Sqlite_FunctionWrapper);
     if (Gua_SetFunction((Gua_Namespace *)nspace, "sqliteExecute", &function) != GUA_OK) {
         errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
         sprintf(errMessage, "%s %-.20s...\n", "can't set function", "sqliteExecute");
+        strcat(error, errMessage);
+        Gua_Free(errMessage);
+    }
+    Gua_LinkCFunctionToFunction(function, Sqlite_FunctionWrapper);
+    if (Gua_SetFunction((Gua_Namespace *)nspace, "sqliteExists", &function) != GUA_OK) {
+        errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
+        sprintf(errMessage, "%s %-.20s...\n", "can't set function", "sqliteExists");
+        strcat(error, errMessage);
+        Gua_Free(errMessage);
+    }
+    Gua_LinkCFunctionToFunction(function, Sqlite_FunctionWrapper);
+    if (Gua_SetFunction((Gua_Namespace *)nspace, "sqliteOneColumn", &function) != GUA_OK) {
+        errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
+        sprintf(errMessage, "%s %-.20s...\n", "can't set function", "sqliteOneColumn");
         strcat(error, errMessage);
         Gua_Free(errMessage);
     }

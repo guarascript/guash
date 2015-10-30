@@ -59,7 +59,7 @@
  *     x,          a structure containing the return object of the function;
  *     error,      a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     The function returns the linear system solution.
  */
 Gua_Status Numeric_GaussLSS(Gua_Object *a, Gua_Object *b, Gua_Object *x, Gua_String error)
@@ -240,7 +240,7 @@ Gua_Status Numeric_GaussLSS(Gua_Object *a, Gua_Object *b, Gua_Object *x, Gua_Str
  *     object,    a structure containing the return object of the function;
  *     error,     a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     The return object of the wrapped function.
  */
 Gua_Status Numeric_NumericFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gua_Object *object, Gua_String error)
@@ -332,7 +332,7 @@ Gua_Status Numeric_NumericFunctionWrapper(void *nspace, Gua_Short argc, Gua_Obje
  *     env,       a pointer to the environment variables;
  *     error,     a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     Install the numeric computation functions.
  */
 Gua_Status Numeric_Init(void *nspace, int argc, char *argv[], char **env, Gua_String error)

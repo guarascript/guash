@@ -187,3 +187,32 @@ test (tries; 10) {
 println("Test completed in " + GUA_TIME + " seconds.")
 println("Tries = " + GUA_TRIES)
 
+test (tries; 3) {
+    function f7() {
+        a = 1
+        b = 2
+        
+        function f8(x, y) {
+            z = x + y
+            #println("x + y = " + z)
+            #println("a = " + $("a"))
+            #println("b = " + $("b"))
+            return(z)
+        }
+        
+        c = f8(a, b)
+        #println("c = " + c)
+        return(c)
+    }
+
+    f7()
+} catch {
+    println("TEST: Fail in expression \"f7()\".")
+    print("      Expected result ")
+    println(GUA_DESIRED)
+    print("      But got ")
+    println(GUA_RESULT)
+}
+println("Test completed in " + GUA_TIME + " seconds.")
+println("Tries = " + GUA_TRIES)
+

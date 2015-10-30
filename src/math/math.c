@@ -57,7 +57,7 @@
  *     object,    a structure containing the return value of the function;
  *     error,     a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     The return value of the wrapped funcion.
  */
 Gua_Status Math_MathFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gua_Object *object, Gua_String error)
@@ -1152,7 +1152,7 @@ Gua_Status Math_MathFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *ar
  *     env,       a pointer to the environment variables;
  *     error,     a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     Install the math functions.
  */
 Gua_Status Math_Init(void *nspace, int argc, char *argv[], char **env, Gua_String error)

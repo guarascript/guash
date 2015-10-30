@@ -1,31 +1,31 @@
-glfwCreateCursor
-glfwCreateStandardCursor
+glfwCreateCursor (x)
+glfwCreateStandardCursor (x)
 glfwCreateWindow (x)
-glfwDefaultWindowHints
-glfwDestroyCursor
+glfwDefaultWindowHints (x)
+glfwDestroyCursor (x)
 glfwDestroyWindow (x)
-glfwExtensionSupported
-glfwGetClipboardString
-glfwGetCurrentContext
-glfwGetCursorPos
+glfwExtensionSupported (x)
+glfwGetClipboardString (x)
+glfwGetCurrentContext (x)
+glfwGetCursorPos (x)
 glfwGetFramebufferSize (x)
-glfwGetGammaRamp
-glfwGetInputMode
-glfwGetJoystickAxes
-glfwGetJoystickButtons
-glfwGetJoystickName
-glfwGetKey
-glfwGetMonitorName
-glfwGetMonitorPhysicalSize
-glfwGetMonitorPos
-glfwGetMonitors
-glfwGetMouseButton
-glfwGetPrimaryMonitor
-glfwGetProcAddress
-glfwGetTime
-glfwGetVersion
-glfwGetVersionString
-glfwGetVideoMode
+glfwGetGammaRamp (x)
+glfwGetInputMode (x)
+glfwGetJoystickAxes (x)
+glfwGetJoystickButtons (x)
+glfwGetJoystickName (x)
+glfwGetKey (x)
+glfwGetMonitorName (x)
+glfwGetMonitorPhysicalSize (x)
+glfwGetMonitorPos (x)
+glfwGetMonitors (x)
+glfwGetMouseButton (x)
+glfwGetPrimaryMonitor (x)
+glfwGetProcAddress (x)
+glfwGetTime (x)
+glfwGetVersion (x)
+glfwGetVersionString (x)
+glfwGetVideoMode (x)
 glfwGetVideoModes
 glfwGetWindowAttrib
 glfwGetWindowFrameSize

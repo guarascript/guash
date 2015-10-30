@@ -30,7 +30,7 @@ function init() {
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
     
-    $model_list = glutilLoadObj($file_name, GLUTIL_SMOOTH | GLUTIL_MATERIAL, 90.0);
+    $model_list = gloLoadObj($file_name, GLO_SMOOTH | GLO_MATERIAL, 90.0);
     
     glFree(diffuse_material);
     glFree(mat_specular);
@@ -111,7 +111,7 @@ if (argc == 3) {
 glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
 glutInitWindowSize(500, 500);
 glutInitWindowPosition(100, 100);
-win = glutCreateWindow("GLUTIL OBJ Loader");
+win = glutCreateWindow("GLO OBJ Loader");
 
 init();
 

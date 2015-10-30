@@ -4,9 +4,9 @@
  *     This library implements an expression interpreter.
  *
  * Copyright (C) 2005 Roberto Luiz Souza Monteiro.
- * Copyright (C) 2013 Roberto Luiz Souza Monteiro,
- *                    Hernane Borges de Barros Pereira,
- *                    Marcelo A. Moret.
+ * Copyright (C) 2013, 2015 Roberto Luiz Souza Monteiro,
+ *                          Hernane Borges de Barros Pereira,
+ *                          Marcelo A. Moret.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * RCS: @(#) $Id: interp.h,v 2.9 2015/03/03 15:18:00 monteiro Exp $
+ * RCS: @(#) $Id: interp.h,v 3.0 2015/10/11 23:41:00 monteiro Exp $
  *
  */
 
@@ -76,8 +76,9 @@
 #define TOKEN_TYPE_TRY              44
 #define TOKEN_TYPE_CATCH            45
 #define TOKEN_TYPE_TEST             46
-#define TOKEN_TYPE_END              47
-#define TOKEN_TYPE_UNKNOWN          48
+#define TOKEN_TYPE_SCRIPT           47
+#define TOKEN_TYPE_END              48
+#define TOKEN_TYPE_UNKNOWN          49
 
 #define PARENTHESIS_OPEN   '('
 #define PARENTHESIS_CLOSE  ')'
@@ -179,7 +180,7 @@
 #define SCOPE_STACK   1
 #define SCOPE_GLOBAL  2
 
-#define GUA_VERSION  "2.9"
+#define GUA_VERSION  "3.0"
 
 #define END_OF_LINE     '\n'
 #define EXPRESSION_END  '\0'
@@ -1149,7 +1150,7 @@ void Gua_FreeArray(Gua_Element *array);
 void Gua_FreeMatrix(Gua_Matrix *matrix);
 void Gua_FreeHandle(Gua_Handle *handle);
 void Gua_FreeObject(Gua_Object *object);
-Gua_Status Gua_UnsetElement(Gua_Object *array, Gua_Object *key);
+Gua_Status Gua_UnsetArrayElement(Gua_Object *array, Gua_Object *key);
 Gua_Status Gua_GetArrayElement(Gua_Object *array, Gua_Object *key, Gua_Object *object);
 Gua_Status Gua_SetArrayElement(Gua_Object *array, Gua_Object *key, Gua_Object *object, Gua_Stored stored);
 void Gua_SetStoredArray(Gua_Object *array, Gua_Stored stored);

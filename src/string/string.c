@@ -58,7 +58,7 @@
  *     object,    a structure containing the return object of the function;
  *     error,     a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     The return object of the wrapped funcion.
  */
 Gua_Status String_StringFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gua_Object *object, Gua_String error)
@@ -1127,7 +1127,7 @@ Gua_Status String_StringFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object
  *     env,       a pointer to the environment variables;
  *     error,     a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     Install the string functions.
  */
 Gua_Status String_Init(void *nspace, int argc, char *argv[], char **env, Gua_String error)

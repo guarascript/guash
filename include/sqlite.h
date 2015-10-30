@@ -21,11 +21,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * RCS: @(#) $Id: sqlite.h,v 1.1 2014/07/22 14:27:00 monteiro Exp $
+ * RCS: @(#) $Id: sqlite.h,v 2.0 2015/10/16 17:31:00 monteiro Exp $
  * 
  */
 
-#define GUA_SQLITE_VERSION "1.1"
+#define GUA_SQLITE_VERSION "2.0"
 
 Gua_Status Sqlite_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gua_Object *object, Gua_String error);
 Gua_Status Sqlite_Init(void *nspace, int argc, char *argv[], char **env, Gua_String error);

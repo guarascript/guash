@@ -10,9 +10,9 @@
  *
  * Copyright:
  *     Copyright (C) 2005 Roberto Luiz Souza Monteiro;
- *     Copyright (C) 2013 Roberto Luiz Souza Monteiro,
- *                        Hernane Borges de Barros Pereira,
- *                        Marcelo A. Moret.
+ *     Copyright (C) 2013, 2015 Roberto Luiz Souza Monteiro,
+ *                              Hernane Borges de Barros Pereira,
+ *                              Marcelo A. Moret.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * RCS: @(#) $Id: guash.c,v 2.0 2014/07/15 13:52:00 monteiro Exp $
+ * RCS: @(#) $Id: guash.c,v 2.1 2015/10/22 09:43:00 monteiro Exp $
  * 
  */
 
@@ -41,30 +41,38 @@
 #include "fs.h"
 #ifdef _OPENGL_
     #include "gl.h"
+#ifndef _GLWM_
     #include "glu.h"
 #endif
-#ifdef _GLFW_
-    #include "glfw.h"
 #endif
 #ifdef _GLUT_
     #include "glut.h"
 #endif
-#ifdef _OPENGL_
-    #include "glutil.h"
+#ifdef _GLWM_
+    #include "glw.h"
 #endif
+#ifdef _OPENGL_
+    #include "glf.h"
+#endif
+#ifdef _OPENGL_
+    #include "glo.h"
+#endif
+#include "match.h"
 #include "math.h"
 #include "matrix.h"
 #include "numeric.h"
 #include "printf.h"
+#include "regexp.h"
 #include "sqlite.h"
 #include "string.h"
 #include "system.h"
+#include "time.h"
 #ifndef _WINDOWS_
     #include "tui.h"
 #endif
 #include "utf8.h"
 
-#define SHELL_VERSION "1.9"
+#define SHELL_VERSION "2.1"
 
 #define ERROR_SIZE 65536
 #define GUA_SIZE  65536
@@ -118,16 +126,12 @@ int main(int argc, char *argv[], char **env)
     if (status != GUA_OK) {
         printf("\nError: %s\n", error);
     }
+#ifndef _GLWM_
     status = Glu_Init(nspace, argc, argv, env, error);
     if (status != GUA_OK) {
         printf("\nError: %s\n", error);
     }
 #endif
-#ifdef _GLFW_
-    status = Glfw_Init(nspace, argc, argv, env, error);
-    if (status != GUA_OK) {
-        printf("\nError: %s\n", error);
-    }
 #endif
 #ifdef _GLUT_
     status = Glut_Init(nspace, argc, argv, env, error);
@@ -135,12 +139,28 @@ int main(int argc, char *argv[], char **env)
         printf("\nError: %s\n", error);
     }
 #endif
-#ifdef _OPENGL_
-    status = Glutil_Init(nspace, argc, argv, env, error);
+#ifdef _GLWM_
+    status = Glw_Init(nspace, argc, argv, env, error);
     if (status != GUA_OK) {
         printf("\nError: %s\n", error);
     }
 #endif
+#ifdef _OPENGL_
+    status = Glf_Init(nspace, argc, argv, env, error);
+    if (status != GUA_OK) {
+        printf("\nError: %s\n", error);
+    }
+#endif
+#ifdef _OPENGL_
+    status = Glo_Init(nspace, argc, argv, env, error);
+    if (status != GUA_OK) {
+        printf("\nError: %s\n", error);
+    }
+#endif
+    status = Match_Init(nspace, argc, argv, env, error);
+    if (status != GUA_OK) {
+        printf("\nError: %s\n", error);
+    }
     status = Math_Init(nspace, argc, argv, env, error);
     if (status != GUA_OK) {
         printf("\nError: %s\n", error);
@@ -157,6 +177,10 @@ int main(int argc, char *argv[], char **env)
     if (status != GUA_OK) {
         printf("\nError: %s\n", error);
     }
+    status = Regexp_Init(nspace, argc, argv, env, error);
+    if (status != GUA_OK) {
+        printf("\nError: %s\n", error);
+    }
     status = Sqlite_Init(nspace, argc, argv, env, error);
     if (status != GUA_OK) {
         printf("\nError: %s\n", error);
@@ -166,6 +190,10 @@ int main(int argc, char *argv[], char **env)
         printf("\nError: %s\n", error);
     }
     status = System_Init(nspace, argc, argv, env, error);
+    if (status != GUA_OK) {
+        printf("\nError: %s\n", error);
+    }
+    status = Time_Init(nspace, argc, argv, env, error);
     if (status != GUA_OK) {
         printf("\nError: %s\n", error);
     }
@@ -246,24 +274,32 @@ int main(int argc, char *argv[], char **env)
         printf("File system access library, version %s\n", FS_VERSION);
 #ifdef _OPENGL_
         printf("OpenGL library, version %s\n", GUA_GL_VERSION);
+#ifndef _GLWM_
         printf("GLU library, version %s\n", GUA_GLU_VERSION);
 #endif
-#ifdef _GLFW_
-        printf("GLFW library, version %s\n", GUA_GLFW_VERSION);
 #endif
 #ifdef _GLUT_
         printf("GLUT library, version %s\n", GUA_GLUT_VERSION);
 #endif
-#ifdef _OPENGL_
-        printf("GLUTIL library, version %s\n", GUA_GLUTIL_VERSION);
+#ifdef _GLWM_
+        printf("GLWM library, version %s\n", GUA_GLWM_VERSION);
 #endif
+#ifdef _OPENGL_
+        printf("GLF library, version %s\n", GUA_GLF_VERSION);
+#endif
+#ifdef _OPENGL_
+        printf("GLO library, version %s\n", GUA_GLO_VERSION);
+#endif
+        printf("Match library, version %s\n", MATCH_VERSION);
         printf("Math library, version %s\n", MATH_VERSION);
         printf("Matrix library, version %s\n", MATRIX_VERSION);
         printf("Numeric library, version %s\n", NUMERIC_VERSION);
         printf("Printf library, version %s\n", PRINTF_VERSION);
+        printf("Regexp library, version %s\n", REGEXP_VERSION);
         printf("SQLite library, version %s\n", GUA_SQLITE_VERSION);
         printf("String library, version %s\n", STRING_VERSION);
         printf("System library, version %s\n", SYSTEM_VERSION);
+        printf("Time library, version %s\n", TIME_VERSION);
 #ifndef _WINDOWS_
         printf("TUI library, version %s\n", TUI_VERSION);
 #endif

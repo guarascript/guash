@@ -41,9 +41,9 @@
  *
  * Copyright:
  *     Copyright (C) 2005 Roberto Luiz Souza Monteiro;
- *     Copyright (C) 2013 Roberto Luiz Souza Monteiro,
- *                    Hernane Borges de Barros Pereira,
- *                    Marcelo A. Moret.
+ *     Copyright (C) 2013, 2015 Roberto Luiz Souza Monteiro,
+ *                              Hernane Borges de Barros Pereira,
+ *                              Marcelo A. Moret.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,7 +59,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * RCS: @(#) $Id: interp.c,v 2.9 2015/03/03 15:18:00 monteiro Exp $
+ * RCS: @(#) $Id: interp.c,v 3.0 2015/10/11 23:41:00 monteiro Exp $
  * 
  */
 
@@ -584,7 +584,7 @@ Gua_String Gua_ScanSingleQuotes(Gua_String start, Gua_Token *token)
         return p;
     }
     
-    token->type = TOKEN_TYPE_STRING;
+    token->type = TOKEN_TYPE_SCRIPT;
     token->status = GUA_OK;
     
     while ((*p != SINGLE_QUOTE) && (*p != EXPRESSION_END)) {
@@ -2006,16 +2006,14 @@ void Gua_FreeFunction(Gua_Function *function)
  */
 Gua_Status Gua_UnsetFunction(Gua_Namespace *nspace, Gua_String name)
 {
-    Gua_Namespace *top;
+    Gua_Namespace *ns;
     Gua_Function *function;
     Gua_Function *previous;
     Gua_Function *next;
     
-    top = (Gua_Namespace *)nspace;
-    while (top->previous) {
-        top = (Gua_Namespace *)top->previous;
-    }
-    function = top->function[Gua_NamespaceSlot(name)];
+    ns = (Gua_Namespace *)nspace;
+    
+    function = ns->function[Gua_NamespaceSlot(name)];
     
     if (function) {
         while (true) {
@@ -2031,9 +2029,9 @@ Gua_Status Gua_UnsetFunction(Gua_Namespace *nspace, Gua_String name)
                 }
                 if (!previous) {
                     if (!next) {
-                        top->function[Gua_NamespaceSlot(name)] = NULL;
+                        ns->function[Gua_NamespaceSlot(name)] = NULL;
                     } else {
-                        top->function[Gua_NamespaceSlot(name)] = next;
+                        ns->function[Gua_NamespaceSlot(name)] = next;
                     }
                 }
                 
@@ -2072,14 +2070,12 @@ Gua_Status Gua_UnsetFunction(Gua_Namespace *nspace, Gua_String name)
  */
 Gua_Status Gua_SearchFunction(Gua_Namespace *nspace, Gua_String name, Gua_Function *function)
 {
-    Gua_Namespace *top;
+    Gua_Namespace *ns;
     Gua_Function *p;
     
-    top = (Gua_Namespace *)nspace;
-    while (top->previous) {
-        top = (Gua_Namespace *)top->previous;
-    }
-    p = top->function[Gua_NamespaceSlot(name)];
+    ns = (Gua_Namespace *)nspace;
+    
+    p = ns->function[Gua_NamespaceSlot(name)];
     
     if (p) {
         while (true) {
@@ -2093,6 +2089,12 @@ Gua_Status Gua_SearchFunction(Gua_Namespace *nspace, Gua_String name, Gua_Functi
                 break;
             }
         }
+    }
+    
+    ns = nspace;
+    if (ns->previous) {
+        ns = (Gua_Namespace *)ns->previous;
+        return Gua_SearchFunction(ns, name, function);
     }
     
     return GUA_ERROR;
@@ -2145,17 +2147,15 @@ Gua_Status Gua_GetFunction(Gua_Namespace *nspace, Gua_String name, Gua_Function 
  */
 Gua_Status Gua_SetFunction(Gua_Namespace *nspace, Gua_String name, Gua_Function *function)
 {
-    Gua_Namespace *top;
+    Gua_Namespace *ns;
     Gua_Function *p;
     Gua_Function *newFunction;
     Gua_Argument *args;
     Gua_Short i;
     
-    top = (Gua_Namespace *)nspace;
-    while (top->previous) {
-        top = (Gua_Namespace *)top->previous;
-    }
-    p = top->function[Gua_NamespaceSlot(name)];
+    ns = (Gua_Namespace *)nspace;
+    
+    p = ns->function[Gua_NamespaceSlot(name)];
     
     if (p) {
         while (true) {
@@ -2199,7 +2199,7 @@ Gua_Status Gua_SetFunction(Gua_Namespace *nspace, Gua_String name, Gua_Function 
         newFunction->previous = NULL;
         newFunction->next = NULL;
         
-        top->function[Gua_NamespaceSlot(name)] = (Gua_Function *)newFunction;
+        ns->function[Gua_NamespaceSlot(name)] = (Gua_Function *)newFunction;
         
         return GUA_OK;
     }
@@ -2291,7 +2291,7 @@ void Gua_FreeMatrix(Gua_Matrix *matrix)
  * Arguments:
  *     handle,    a pointer to a handle.
  *
- * Retults:
+ * Results:
  *     The function frees the given handle.
  */
 void Gua_FreeHandle(Gua_Handle *handle)
@@ -2343,7 +2343,7 @@ void Gua_FreeObject(Gua_Object *object)
  *     C
  *
  * Function:
- *     Gua_Status Gua_UnsetElement(Gua_Object *array, Gua_Object *key)
+ *     Gua_Status Gua_UnsetArrayElement(Gua_Object *array, Gua_Object *key)
  *
  * Description:
  *     Unset an associative array element object.
@@ -2355,7 +2355,7 @@ void Gua_FreeObject(Gua_Object *object)
  * Results:
  *     The function unsets the associative array element object.
  */
-Gua_Status Gua_UnsetElement(Gua_Object *array, Gua_Object *key)
+Gua_Status Gua_UnsetArrayElement(Gua_Object *array, Gua_Object *key)
 {
     Gua_Element *element;
     Gua_Element *previous;
@@ -5750,7 +5750,7 @@ Gua_Status Gua_CopyFile(Gua_Object *target, Gua_Object *source, Gua_Stored store
  *     source,    the source handle;
  *     stored,    if TRUE the object of the target handle is stored in a variable.
  *
- * Retults:
+ * Results:
  *     The function makes a copy of a handle to other.
  */
 Gua_Status Gua_CopyHandle(Gua_Object *target, Gua_Object *source, Gua_Stored stored)
@@ -7410,6 +7410,13 @@ Gua_String Gua_ParseObject(Gua_Namespace *nspace, Gua_String start, Gua_Token *t
         memset(object->string, '\0', sizeof(char) * (token->length + 1));
         Gua_ScanString(object->string, token->start, token->length);
         Gua_SetPObjectLength(object, strlen(Gua_PObjectToString(object)));
+    /* Parse a SCRIPT object. */
+    } else if (token->type == TOKEN_TYPE_SCRIPT) {
+        Gua_SetPObjectType(object, OBJECT_TYPE_STRING);
+        object->string = (char *)Gua_Alloc(sizeof(char) * (token->length + 1));
+        memset(object->string, '\0', sizeof(char) * (token->length + 1));
+        memcpy(object->string, token->start, token->length);
+        Gua_SetPObjectLength(object, strlen(Gua_PObjectToString(object)));
     /* Parse PARENTHESIS. */
     } else if (token->type == TOKEN_TYPE_PARENTHESIS) {
         if (token->length > 0) {
@@ -7635,7 +7642,7 @@ Gua_String Gua_ParseObject(Gua_Namespace *nspace, Gua_String start, Gua_Token *t
         name = (char *)Gua_Alloc(sizeof(char) * (token->length + 1));
         memset(name, '\0', sizeof(char) * (token->length + 1));
         strncpy(name, token->start, token->length);
-        
+                        
         p = Gua_NextToken(nspace, p, token);
         
         if (token->status != GUA_OK) {
@@ -11980,7 +11987,7 @@ Gua_String Gua_ParseAssignIndirection(Gua_Namespace *nspace, Gua_String start, G
                                     }
                                 } else {
                                     if (objectType != OBJECT_TYPE_UNKNOWN) {
-                                        if (Gua_UnsetElement(&variableObject, &argObject) == GUA_OK) {
+                                        if (Gua_UnsetArrayElement(&variableObject, &argObject) == GUA_OK) {
                                             if (Gua_UpdateObject(nspace, Gua_ObjectToString(operand), &variableObject, SCOPE_STACK) != GUA_OK) {
                                                 *status = GUA_ERROR;
                                                 
@@ -12511,7 +12518,7 @@ Gua_String Gua_ParseAssignMacro(Gua_Namespace *nspace, Gua_String start, Gua_Tok
                                     }
                                 } else {
                                     if (objectType != OBJECT_TYPE_UNKNOWN) {
-                                        if (Gua_UnsetElement(&variableObject, &argObject) == GUA_OK) {
+                                        if (Gua_UnsetArrayElement(&variableObject, &argObject) == GUA_OK) {
                                             if (Gua_UpdateObject(nspace, name, &variableObject, SCOPE_GLOBAL) != GUA_OK) {
                                                 *status = GUA_ERROR;
                                                 
@@ -12979,7 +12986,7 @@ Gua_String Gua_ParseAssignMacro(Gua_Namespace *nspace, Gua_String start, Gua_Tok
                                             }
                                         } else {
                                             if (objectType != OBJECT_TYPE_UNKNOWN) {
-                                                if (Gua_UnsetElement(&variableObject, &argObject) == GUA_OK) {
+                                                if (Gua_UnsetArrayElement(&variableObject, &argObject) == GUA_OK) {
                                                     if (Gua_UpdateObject(nspace, Gua_ObjectToString(operand), &variableObject, SCOPE_STACK) != GUA_OK) {
                                                         *status = GUA_ERROR;
                                                         
@@ -13598,7 +13605,7 @@ Gua_String Gua_ParseAssignUnknown(Gua_Namespace *nspace, Gua_String start, Gua_T
                 Gua_Free(script);
                 Gua_Free(expression);
             } else {
-                *status = token->status;
+                *status = GUA_ERROR;
                 
                 errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
                 sprintf(errMessage, "%s %*.*s...\n", Gua_StatusTable[GUA_ERROR_UNEXPECTED_TOKEN], (int)token->length, (int)token->length, token->start);
@@ -14000,7 +14007,7 @@ Gua_String Gua_ParseAssignVariable(Gua_Namespace *nspace, Gua_String start, Gua_
                                     Gua_Free(errMessage);
                                 }
                             } else {
-                                if (Gua_UnsetElement(&variableObject, &argObject) == GUA_OK) {
+                                if (Gua_UnsetArrayElement(&variableObject, &argObject) == GUA_OK) {
                                     if (Gua_UpdateObject(nspace, name, &variableObject, SCOPE_LOCAL) != GUA_OK) {
                                         *status = GUA_ERROR;
                                         
@@ -17516,7 +17523,11 @@ void Gua_KeyValuePairsToArray(Gua_Short n, Gua_String *key, Gua_String *value, G
             /* The element key. */
             Gua_StringToObject(newElement->key, key[i]);
             /* The element object. */
-            Gua_StringToObject(newElement->object, value[i]);
+            if (value[i] != NULL) {
+                Gua_StringToObject(newElement->object, value[i]);
+            } else {
+                Gua_StringToObject(newElement->object, "");
+            }
             
             /* Set the target array chain. */
             newElement->previous = NULL;
@@ -17532,7 +17543,11 @@ void Gua_KeyValuePairsToArray(Gua_Short n, Gua_String *key, Gua_String *value, G
             /* The element key. */
             Gua_StringToObject(newElement->key, key[i]);
             /* The element object. */
-            Gua_StringToObject(newElement->object, value[i]);
+            if (value[i] != NULL) {
+                Gua_StringToObject(newElement->object, value[i]);
+            } else {
+                Gua_StringToObject(newElement->object, "");
+            }
             
             /* Set the target array chain. */
             newElement->previous = (struct Gua_Element *)previous;

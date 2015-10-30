@@ -1,3 +1,60 @@
+2015-10-26 Roberto Luiz Souza Monteiro <roberto@souzamonteiro.com>
+
+*glw.c
+*glwm.c
+*glwm.h
+Bug fix on GLWM multi-window event handle.
+
+*glfw.c
+*glfw.h
+*guash.c
+Removed GLFW support.
+
+2015-10-22 Roberto Luiz Souza Monteiro <roberto@souzamonteiro.com>
+
+*guash.c
+Added GLWM support.
+
+*glwm.c
+Implemented GLWM support.
+
+2015-10-13 Roberto Luiz Souza Monteiro <roberto@souzamonteiro.com>
+
+*interp.c
+Bug fix on function Gua_KeyValuePairsToArray.
+
+2015-10-11 Roberto Luiz Souza Monteiro <roberto@souzamonteiro.com>
+
+* match.c
+* match.h
+Created functions match and glob.
+
+* regexp.c
+* regexp.h
+Created regular expression functions regexp and regsub.
+
+* glo.c:
+* glo.h:
+Package Glutil renamed to Glo.
+
+* glft.c
+* glft.h
+* glf.c
+* glf.h
+Added package Glf for font render on OpenGL.
+
+* time.c
+* time.h
+All time related functions moved to package Time.
+
+* strptime.c
+* strptime.h
+Created an OS independent version of the BSD strptime function.
+
+* interp.c
+* interp.h
+Bug fix on function creation and search scope. Now functions are created on the local scop ever.
+
 2014-08-06 Roberto Luiz Souza Monteiro <roberto@souzamonteiro.com>
 
 * glutil.c:

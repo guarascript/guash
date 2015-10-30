@@ -23,9 +23,9 @@
 # RCS: @(#) $Id: phone.gua,v 1.1 2015/03/11 15:02:00 monteiro Exp $
 #
 
-interp_file = fsFullPath($argv[1])
-interp_path = fsPath(interp_file)
-file = interp_path + "/phone.txt"
+script_file = fsFullPath($argv[1])
+script_path = fsPath(script_file)
+file = script_path + "/phone.txt"
 
 record["name"] = "";
 record["phone"] = "";

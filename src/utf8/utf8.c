@@ -55,7 +55,7 @@
  *     object,    a structure containing the return object of the function;
  *     error,     a pointer to the error message.
  *
- * Retults:
+ * Results:
  *     The return object of the wrapped function.
  */
 Gua_Status Utf8_Utf8FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gua_Object *object, Gua_String error)
@@ -386,7 +386,7 @@ Gua_Status Utf8_Utf8FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *ar
  *     env,       a pointer to the environment variables;
  *     error,     a pointer to the error message;
  *
- * Retults:
+ * Results:
  *     Install the extension functions.
  */
 Gua_Status Utf8_Init(void *nspace, int argc, char *argv[], char **env, Gua_String error)

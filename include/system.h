@@ -4,9 +4,9 @@
  *     This library implements the system functions for an expression interpreter.
  *
  * Copyright (C) 2005 Roberto Luiz Souza Monteiro.
- * Copyright (C) 2013 Roberto Luiz Souza Monteiro,
- *                    Hernane Borges de Barros Pereira,
- *                    Marcelo A. Moret.
+ * Copyright (C) 2013, 2015 Roberto Luiz Souza Monteiro,
+ *                          Hernane Borges de Barros Pereira,
+ *                          Marcelo A. Moret.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,11 +22,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * RCS: @(#) $Id: system.h,v 2.2 2014/08/05 09:20:00 monteiro Exp $
+ * RCS: @(#) $Id: system.h,v 2.4 2015/10/10 15:14:00 monteiro Exp $
  * 
  */
 
-#define SYSTEM_VERSION "2.2"
+#define SYSTEM_VERSION "2.4"
 
 #ifdef _LINUX_
     #define SYSTEM_HOST "linux"
@@ -42,8 +42,6 @@
     #define SYSTEM_ARCH "x86"
 #endif
 
-Gua_Status System_TimeFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gua_Object *object, Gua_String error);
-Gua_Status System_StrftimeFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gua_Object *object, Gua_String error);
 Gua_Status System_PrintFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gua_Object *object, Gua_String error);
 Gua_Status System_PrintlnFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gua_Object *object, Gua_String error);
 Gua_Status System_SourceFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gua_Object *object, Gua_String error);
