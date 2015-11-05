@@ -202,6 +202,9 @@ install_glwmguash: all
 install_language_specs: $(IDE_DIR)/language-specs/gua.lang
 	$(CP) $(IDE_DIR)/language-specs/* $(LANGUAGE_SPECS_DIR)
 
+install_gedit_language_snippets: $(IDE_DIR)/language-specs/gua.lang
+	$(CP) $(IDE_DIR)/gedit-language-snippets/* /home/$(USER)/.config/gedit/snippets
+
 clean:
 	rm -rf $(SRC_TREE)/*~ $(SRC_TREE)*.bak
 	rm -rf $(SRC_TREE)/array/*~ $(SRC_TREE)/array/*.bak $(SRC_DIR)/array/*~ $(SRC_DIR)/array/*.bak $(SRC_DIR)/array/*.o 
