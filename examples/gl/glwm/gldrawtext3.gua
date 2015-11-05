@@ -1,5 +1,10 @@
 #!/usr/local/bin/glwmguash
 
+window_x_start_position = 100;
+window_y_start_position = 100;
+windows_height          = 480;
+windows_width           = 640;
+
 function display(window) {
     glwmMakeCurrent(window);
     
@@ -181,8 +186,8 @@ glwmRegisterMouseButtonPressFunc(window, "mouseButtonPress");
 glwmRegisterMouseButtonReleaseFunc(window, "mouseButtonRelease");
 glwmRegisterCloseFunc(window, "closeWindow");
 
-glwmSetWindowPos(window, 100, 100);
-glwmSetWindowSize(window, 640, 480);
+glwmSetWindowPos(window, window_x_start_position, window_y_start_position);
+glwmSetWindowSize(window, windows_width, windows_height);
 
 window2 = glwmCreateWindow("GLWM Test 2");
 

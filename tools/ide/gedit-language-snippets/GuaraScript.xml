@@ -1,0 +1,245 @@
+<?xml version='1.0' encoding='utf-8'?>
+<snippets language="gua">
+<snippet>
+    <tag>do</tag>
+    <text><![CDATA[do {
+	$0
+} while ($1);]]></text>
+    <description>do .. while</description>
+  </snippet>
+  <snippet>
+    <tag>else</tag>
+    <text><![CDATA[else {
+	$0
+}]]></text>
+    <description>else</description>
+  </snippet>
+  <snippet>
+    <tag>elif</tag>
+    <text><![CDATA[else if (${1:condition}){
+	$0
+}]]></text>
+    <description>else if</description>
+  </snippet>
+  <snippet>
+    <tag>for</tag>
+    <text><![CDATA[for (${1:i} = ${2:0}; ${1:i} < ${3:lmax}; ${1:i} = ${1:i} + ${4:1}){
+	$0
+}]]></text>
+    <description>for loop</description>
+  </snippet>
+  <snippet>
+    <tag>gpl</tag>
+    <text><![CDATA[#
+# ${1:[$GEDIT_CURRENT_DOCUMENT_NAME,<filename>]}
+# This file is part of ${2:<program name>}
+#
+# Copyright (C) $<3: import datetime; return str(datetime.date.today().year)> - $<4:
+import pwd, os
+try:
+return pwd.getpwuid(os.getuid()).pw_gecos.split(',')[0]
+except KeyError:
+return '<author\>' >
+#
+# ${2} is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# ${2} is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with ${2}. If not, see <http://www.gnu.org/licenses/>.
+#
+
+$0]]></text>
+    <description>GPL License</description>
+  </snippet>
+  <snippet>
+    <tag>if</tag>
+    <text><![CDATA[if (${1:condition}){
+	$0
+}]]></text>
+    <description>if</description>
+  </snippet>
+  <snippet>
+    <tag>lgpl</tag>
+    <text><![CDATA[#
+# ${1:[$GEDIT_CURRENT_DOCUMENT_NAME,<filename>]}
+# This file is part of ${2:<library name>}
+#
+# Copyright (C) $<3: import datetime; return str(datetime.date.today().year)> - $<4:
+import pwd, os
+try:
+return pwd.getpwuid(os.getuid()).pw_gecos.split(',')[0]
+except KeyError:
+return '<author\>' >
+#
+# ${2} is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# ${2} is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You shouAld have received a copy of the GNU Lesser General Public License
+# along with ${2}. If not, see <http://www.gnu.org/licenses/>.
+#
+
+$0 ]]></text>
+    <description>LGPL License</description>
+  </snippet>
+  <snippet>
+    <tag>main</tag>
+    <text><![CDATA[function main (){
+	$0
+	return(0);
+}]]></text>
+    <description>main</description>
+  </snippet>
+  <snippet>
+    <tag>while</tag>
+    <text><![CDATA[while (${1:condition}){
+	$0
+}]]></text>
+    <description>while loop</description>
+  </snippet>
+    <snippet>
+    <tag>print</tag>
+    <text><![CDATA[print("$0");]]></text>
+    <description>print</description>
+  </snippet>
+  <snippet>
+    <tag>ifelse</tag>
+    <text><![CDATA[if (${1:condition}){
+	$0
+} else {
+
+}]]></text>
+    <description>ifelse</description>
+  </snippet>
+  <snippet>
+    <tag>function</tag>
+    <text><![CDATA[function ${1:functionName} (${2:param}){
+    $0
+}]]></text>
+    <description>function</description>
+  </snippet>
+  <snippet>
+    <tag>println</tag>
+    <text><![CDATA[println("$0");]]></text>
+    <description>println</description>
+  </snippet>
+  <snippet>
+    <tag>guash</tag>
+    <text><![CDATA[#!/usr/local/bin/guash]]></text>
+    <description>guash</description>
+  </snippet>
+  <snippet>
+    <tag>glwmguash</tag>
+    <description>glwmguash</description>
+    <text><![CDATA[#!/usr/local/bin/glwmguash
+window_x_start_position = 100;
+window_y_start_position = 100;
+windows_height          = 480;
+windows_width           = 640;
+
+function display(window) {
+    
+}
+
+function reshape(window) {
+    #printf("width = %d\n", glwmWindowWidth(window));
+    #printf("height = %d\n", glwmWindowHeight(window));
+    #printf("x = %d\n", glwmWindowXPos(window));
+    #printf("y = %d\n", glwmWindowYPos(window));
+}
+
+function idle(window) {
+    #printf("Idle\n");
+}
+
+function closeWindow(window) {
+    #printf("Close\n");
+    
+    glwmExitMainLoop();
+}
+
+function keyPress(window, key, x, y) {
+    #printf("Key press: key = %d, x = %d, y = %d\n", key, x, y);
+    #if (key == 27) {
+    #    glwmExitMainLoop();
+    #}
+}
+
+function keyRelease(window, key, x, y) {
+    #printf("Key release: key = %d, x = %d, y = %d\n", key, x, y);
+}
+
+function mouseEnter(window) {
+    #printf("Mouse entered\n");
+}
+
+function mouseLeave(window) {
+    #printf("Mouse leaved\n");
+}
+
+function mouseMotion(window, x, y) {
+    #printf("Mouse motion: x = %d, y = %d\n", x, y);
+}
+
+function mouseButtonPress(window, button, state, x, y) {
+    #printf("Mouse button press: button = %d, state = %d, x = %d, y = %d\n", button, state, x, y);
+}
+
+function mouseButtonRelease(window, button, state, x, y) {
+    #printf("Mouse button release: button = %d, state = %d, x = %d, y = %d\n", button, state, x, y);
+}
+
+# Get the app path...
+script_file = fsFullPath($argv[1]);
+script_path = fsPath(script_file);
+
+#glwmInitDisplayMode(GLWM_RGBA | GLWM_DEPTH | GLWM_DOUBLE);
+
+window = glwmCreateWindow("GLWM Test");
+
+if (!exists("window")) {
+    printf("Error: %s.\n", "creating window");
+    
+    exit(1);
+}
+
+glwmRegisterDisplayFunc(window, "display");
+glwmRegisterReshapeFunc(window, "reshape");
+#glwmRegisterIdleFunc(window, "idle");
+glwmRegisterKeyPressFunc(window, "keyPress");
+glwmRegisterKeyReleaseFunc(window, "keyRelease");
+glwmRegisterMouseEnterFunc(window, "mouseEnter");
+glwmRegisterMouseLeaveFunc(window, "mouseLeave");
+glwmRegisterMouseMotionFunc(window, "mouseMotion");
+glwmRegisterMouseButtonPressFunc(window, "mouseButtonPress");
+glwmRegisterMouseButtonReleaseFunc(window, "mouseButtonRelease");
+glwmRegisterCloseFunc(window, "closeWindow");
+
+glwmSetWindowTitle(window, "GLWM Windows Name");
+
+glwmSetWindowPos(window, window_x_start_position, window_y_start_position);
+glwmSetWindowSize(window, windows_width, windows_height);
+
+t1 = glwmGetTime();
+
+glwmMainLoop();
+
+glwmDestroyWindow(window);
+
+glwmTerminate();
+]]></text>
+  </snippet>
+</snippets>
