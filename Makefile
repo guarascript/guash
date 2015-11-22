@@ -203,6 +203,7 @@ install_language_specs: $(IDE_DIR)/language-specs/gua.lang
 	$(CP) $(IDE_DIR)/language-specs/* $(LANGUAGE_SPECS_DIR)
 
 install_gedit_language_snippets: $(IDE_DIR)/language-specs/gua.lang
+	mkdir -p /home/$(USER)/.config/gedit/snippets
 	$(CP) $(IDE_DIR)/gedit-language-snippets/* /home/$(USER)/.config/gedit/snippets
 
 clean:
