@@ -143,11 +143,11 @@ utf8.o: $(SRC_DIR)/utf8/utf8.c $(INC_DIR)/utf8.h
 guash.o: $(SRC_DIR)/shell/guash.c
 	$(CC) $(CFLAGS) -o $(SRC_DIR)/shell/guash.o -c $(SRC_DIR)/shell/guash.c
 	
-glutguash.o: $(SRC_DIR)/shell/guash.c
-	$(CC) $(GLUT_CFLAGS) -o $(SRC_DIR)/shell/glutguash.o -c $(SRC_DIR)/shell/guash.c
+glutguash.o: $(SRC_DIR)/shell/glutguash.c
+	$(CC) $(GLUT_CFLAGS) -o $(SRC_DIR)/shell/glutguash.o -c $(SRC_DIR)/shell/glutguash.c
 
-glwmguash.o: $(SRC_DIR)/shell/guash.c
-	$(CC) $(GLWM_CFLAGS) -o $(SRC_DIR)/shell/glwmguash.o -c $(SRC_DIR)/shell/guash.c
+glwmguash.o: $(SRC_DIR)/shell/glwmguash.c
+	$(CC) $(GLWM_CFLAGS) -o $(SRC_DIR)/shell/glwmguash.o -c $(SRC_DIR)/shell/glwmguash.c
 
 beautiful: $(SRC_TREE)/tools/tab2spaces/tab2spaces
 	$(SRC_TREE)/tools/tab2spaces/tab2spaces.sh $(SRC_TREE)/tools/tab2spaces $(SRC_DIR)/array/*.c
