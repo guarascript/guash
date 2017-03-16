@@ -113,7 +113,17 @@ Gua_Status Gl_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gu
     arg7i = 0;
     arg8i = 0;
     
+    arg1f = 0.0;
+    arg2f = 0.0;
+    arg3f = 0.0;
+    arg4f = 0.0;
+    arg5f = 0.0;
+    arg6f = 0.0;
+    
     arg1d = 0.0;
+    
+    i = 0;
+    l = 0;
     
     if (argc == 0) {
         errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);

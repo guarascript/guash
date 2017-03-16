@@ -367,6 +367,11 @@ int main(int argc, char *argv[], char **env)
         exitCode = Gua_ObjectToInteger(object);
     }
     
+    status = System_Finish(nspace, argc, argv, env, error);
+    if (status != GUA_OK) {
+        printf("\nError: %s\n", error);
+    }
+    
     Gua_FreeNamespace(nspace);
     Gua_Free(error);
     Gua_Free(expr);

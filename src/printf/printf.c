@@ -29,7 +29,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * RCS: @(#) $Id: printf.c,v 1.5 2013/09/09 18:47:00 monteiro Exp $
+ * RCS: @(#) $Id: printf.c,v 1.6 2015/12/15 22:00:00 monteiro Exp $
  * 
  */
 
@@ -339,8 +339,9 @@ Gua_Status Printf_PrintfFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object
         }
     }
     
-    Gua_StringToPObject(object, " ");
-
+    Gua_LinkStringToPObject(object, " ");
+    Gua_SetStoredPObject(object);
+    
     return GUA_OK;
 }
 

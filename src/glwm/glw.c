@@ -1509,26 +1509,6 @@ Gua_Status Glw_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, G
         arg1p = Gua_GetHandlePointer((Gua_Handle *)h);
         
         Glwm_HideWindow((Glwm_Window *)arg1p);
-    } else if (strcmp(Gua_ObjectToString(argv[0]), "glwmInitDisplayMode") == 0) {
-        if (argc != 2) {
-            errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
-            sprintf(errMessage, "%s %-.20s...\n", "wrong number of arguments for function", Gua_ObjectToString(argv[0]));
-            strcat(error, errMessage);
-            Gua_Free(errMessage);
-            
-            return GUA_ERROR;
-        }
-        
-        if (Gua_ObjectType(argv[1]) != OBJECT_TYPE_INTEGER) {
-            errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
-            sprintf(errMessage, "%s %-.20s...\n", "illegal argument 1 for function", Gua_ObjectToString(argv[0]));
-            strcat(error, errMessage);
-            Gua_Free(errMessage);
-            
-            return GUA_ERROR;
-        }
-        
-        Glwm_InitDisplayMode(Gua_ObjectToInteger(argv[1]));
     } else if (strcmp(Gua_ObjectToString(argv[0]), "glwmMainIteration") == 0) {
         if (argc != 1) {
             errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
@@ -2617,13 +2597,6 @@ Gua_Status Glw_Init(void *nspace, int argc, char *argv[], char **env, Gua_String
         Gua_Free(errMessage);
     }
     Gua_LinkCFunctionToFunction(function, Glw_FunctionWrapper);
-    if (Gua_SetFunction((Gua_Namespace *)nspace, "glwmInitDisplayMode", &function) != GUA_OK) {
-        errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
-        sprintf(errMessage, "%s %-.20s...\n", "can't set function", "glwmInitDisplayMode");
-        strcat(error, errMessage);
-        Gua_Free(errMessage);
-    }
-    Gua_LinkCFunctionToFunction(function, Glw_FunctionWrapper);
     if (Gua_SetFunction((Gua_Namespace *)nspace, "glwmMainIteration", &function) != GUA_OK) {
         errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
         sprintf(errMessage, "%s %-.20s...\n", "can't set function", "glwmMainIteration");
@@ -2800,22 +2773,6 @@ Gua_Status Glw_Init(void *nspace, int argc, char *argv[], char **env, Gua_String
     }
 
     /* Define each extension constant... */
-    Gua_IntegerToObject(object, GLWM_ACCUM);
-    Gua_SetStoredObject(object);
-    if (Gua_SetVariable((Gua_Namespace *)nspace, "GLWM_ACCUM", &object, SCOPE_GLOBAL) != GUA_OK) {
-        errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
-        sprintf(errMessage, "%s %-.20s...\n", "can't set variable", "GLWM_ACCUM");
-        strcat(error, errMessage);
-        Gua_Free(errMessage);
-    }
-    Gua_IntegerToObject(object, GLWM_ALPHA);
-    Gua_SetStoredObject(object);
-    if (Gua_SetVariable((Gua_Namespace *)nspace, "GLWM_ALPHA", &object, SCOPE_GLOBAL) != GUA_OK) {
-        errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
-        sprintf(errMessage, "%s %-.20s...\n", "can't set variable", "GLWM_ALPHA");
-        strcat(error, errMessage);
-        Gua_Free(errMessage);
-    }
     Gua_IntegerToObject(object, GLWM_BUTTON_DOWN);
     Gua_SetStoredObject(object);
     if (Gua_SetVariable((Gua_Namespace *)nspace, "GLWM_BUTTON_DOWN", &object, SCOPE_GLOBAL) != GUA_OK) {
@@ -2829,30 +2786,6 @@ Gua_Status Glw_Init(void *nspace, int argc, char *argv[], char **env, Gua_String
     if (Gua_SetVariable((Gua_Namespace *)nspace, "GLWM_BUTTON_UP", &object, SCOPE_GLOBAL) != GUA_OK) {
         errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
         sprintf(errMessage, "%s %-.20s...\n", "can't set variable", "GLWM_BUTTON_UP");
-        strcat(error, errMessage);
-        Gua_Free(errMessage);
-    }
-    Gua_IntegerToObject(object, GLWM_DEPTH);
-    Gua_SetStoredObject(object);
-    if (Gua_SetVariable((Gua_Namespace *)nspace, "GLWM_DEPTH", &object, SCOPE_GLOBAL) != GUA_OK) {
-        errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
-        sprintf(errMessage, "%s %-.20s...\n", "can't set variable", "GLWM_DEPTH");
-        strcat(error, errMessage);
-        Gua_Free(errMessage);
-    }
-    Gua_IntegerToObject(object, GLWM_DOUBLE);
-    Gua_SetStoredObject(object);
-    if (Gua_SetVariable((Gua_Namespace *)nspace, "GLWM_DOUBLE", &object, SCOPE_GLOBAL) != GUA_OK) {
-        errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
-        sprintf(errMessage, "%s %-.20s...\n", "can't set variable", "GLWM_DOUBLE");
-        strcat(error, errMessage);
-        Gua_Free(errMessage);
-    }
-    Gua_IntegerToObject(object, GLWM_INDEX);
-    Gua_SetStoredObject(object);
-    if (Gua_SetVariable((Gua_Namespace *)nspace, "GLWM_INDEX", &object, SCOPE_GLOBAL) != GUA_OK) {
-        errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
-        sprintf(errMessage, "%s %-.20s...\n", "can't set variable", "GLWM_INDEX");
         strcat(error, errMessage);
         Gua_Free(errMessage);
     }
@@ -2904,14 +2837,6 @@ Gua_Status Glw_Init(void *nspace, int argc, char *argv[], char **env, Gua_String
         strcat(error, errMessage);
         Gua_Free(errMessage);
     }
-    Gua_IntegerToObject(object, GLWM_RGBA);
-    Gua_SetStoredObject(object);
-    if (Gua_SetVariable((Gua_Namespace *)nspace, "GLWM_RGBA", &object, SCOPE_GLOBAL) != GUA_OK) {
-        errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
-        sprintf(errMessage, "%s %-.20s...\n", "can't set variable", "GLWM_RGBA");
-        strcat(error, errMessage);
-        Gua_Free(errMessage);
-    }
     Gua_IntegerToObject(object, GLWM_RIGHT_BUTTON);
     Gua_SetStoredObject(object);
     if (Gua_SetVariable((Gua_Namespace *)nspace, "GLWM_RIGHT_BUTTON", &object, SCOPE_GLOBAL) != GUA_OK) {
@@ -2933,30 +2858,6 @@ Gua_Status Glw_Init(void *nspace, int argc, char *argv[], char **env, Gua_String
     if (Gua_SetVariable((Gua_Namespace *)nspace, "GLWM_SCROLL_UP_BUTTON", &object, SCOPE_GLOBAL) != GUA_OK) {
         errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
         sprintf(errMessage, "%s %-.20s...\n", "can't set variable", "GLWM_SCROLL_UP_BUTTON");
-        strcat(error, errMessage);
-        Gua_Free(errMessage);
-    }
-    Gua_IntegerToObject(object, GLWM_SINGLE);
-    Gua_SetStoredObject(object);
-    if (Gua_SetVariable((Gua_Namespace *)nspace, "GLWM_SINGLE", &object, SCOPE_GLOBAL) != GUA_OK) {
-        errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
-        sprintf(errMessage, "%s %-.20s...\n", "can't set variable", "GLWM_SINGLE");
-        strcat(error, errMessage);
-        Gua_Free(errMessage);
-    }
-    Gua_IntegerToObject(object, GLWM_STENCIL);
-    Gua_SetStoredObject(object);
-    if (Gua_SetVariable((Gua_Namespace *)nspace, "GLWM_STENCIL", &object, SCOPE_GLOBAL) != GUA_OK) {
-        errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
-        sprintf(errMessage, "%s %-.20s...\n", "can't set variable", "GLWM_STENCIL");
-        strcat(error, errMessage);
-        Gua_Free(errMessage);
-    }
-    Gua_IntegerToObject(object, GLWM_STEREO);
-    Gua_SetStoredObject(object);
-    if (Gua_SetVariable((Gua_Namespace *)nspace, "GLWM_STEREO", &object, SCOPE_GLOBAL) != GUA_OK) {
-        errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
-        sprintf(errMessage, "%s %-.20s...\n", "can't set variable", "GLWM_STEREO");
         strcat(error, errMessage);
         Gua_Free(errMessage);
     }

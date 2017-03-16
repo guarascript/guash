@@ -22,11 +22,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * RCS: @(#) $Id: printf.h,v 1.5 2013/09/09 18:47:00 monteiro Exp $
+ * RCS: @(#) $Id: printf.h,v 1.6 2015/12/15 22:00:00 monteiro Exp $
  * 
  */
 
-#define PRINTF_VERSION "1.5"
+#define PRINTF_VERSION "1.6"
 
 Gua_Status Printf_SprintfFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gua_Object *object, Gua_String error);
 Gua_Status Printf_PrintfFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gua_Object *object, Gua_String error);

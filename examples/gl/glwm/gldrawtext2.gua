@@ -36,7 +36,7 @@ function display(window) {
     
     glFlush();
     
-    #glwmSwapBuffers(window);
+    glwmSwapBuffers(window);
 }
 
 function reshape(window) {
@@ -90,8 +90,6 @@ function mouseButtonRelease(window, button, state, x, y) {
 # Get the app path...
 script_file = fsFullPath($argv[1]);
 script_path = fsPath(script_file);
-
-#glwmInitDisplayMode(GLWM_RGBA | GLWM_DEPTH | GLWM_DOUBLE);
 
 window = glwmCreateWindow("GLWM Test");
 

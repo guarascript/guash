@@ -68,16 +68,6 @@ typedef struct {
     void (*closeFunc)(void *window);
 } Glwm_Window;
 
-#define GLWM_ACCUM      0
-#define GLWM_ALPHA      1
-#define GLWM_DEPTH      2
-#define GLWM_DOUBLE     4
-#define GLWM_INDEX      8
-#define GLWM_RGBA      16
-#define GLWM_SINGLE    32
-#define GLWM_STENCIL   64
-#define GLWM_STEREO   128
-
 #define GLWM_LEFT_BUTTON         0
 #define GLWM_MIDDLE_BUTTON       1
 #define GLWM_RIGHT_BUTTON        2
@@ -134,7 +124,6 @@ void Glwm_FreeWindow(void *data);
 void Glwm_ParseVarAssignment(char *expression, char *variable, char *value);
 
 int Glwm_Init(int *argc, char *argv[], char **env);
-void Glwm_InitDisplayMode(unsigned int mode);
 
 Glwm_Window *Glwm_CreateWindow(char *title);
 void Glwm_DestroyWindow(Glwm_Window *window);

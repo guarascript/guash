@@ -6,7 +6,7 @@ if (argc > 2) {
     tries = eval(argv[2])
 }
 
-println("Testing the string function...")
+println("Testing the string functions...")
 
 println("at...")
 test (tries; "c") {

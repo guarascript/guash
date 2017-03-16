@@ -151,7 +151,7 @@ Gua_Status Fs_Delete(Gua_String file, Gua_String error)
  *     Check if the specified file exists.
  *
  * Arguments:
- *     file,    file name;
+ *     file,    file name.
  *
  * Results:
  *     Return true if the specified file exists.
@@ -183,7 +183,7 @@ Gua_Integer Fs_Exists(Gua_String file)
  *
  * Arguments:
  *     file,         the full file name;
- *     extension,    the file extension;
+ *     extension,    the file extension.
  *
  * Results:
  *     Return the file extenxion.
@@ -247,7 +247,7 @@ void Fs_Extension(Gua_String file, Gua_String *extension)
  *
  * Arguments:
  *     file,    the full file name;
- *     path,    the file full path;
+ *     path,    the file full path.
  *
  * Results:
  *     Return the file full path.
@@ -285,7 +285,7 @@ void Fs_FullPath(Gua_String file, Gua_String *path)
  *     Check if the specified file is a directory.
  *
  * Arguments:
- *     file,    file name;
+ *     file,    file name.
  *
  * Results:
  *     Return true if the specified file is a directory.
@@ -318,7 +318,7 @@ Gua_Integer Fs_IsDirectory(Gua_String file)
  *     Check if the specified file is executable.
  *
  * Arguments:
- *     file,    file name;
+ *     file,    file name.
  *
  * Results:
  *     Return true if the specified file is executable.
@@ -357,7 +357,7 @@ Gua_Integer Fs_IsExecutable(Gua_String file)
  *     Check if the specified file is readable.
  *
  * Arguments:
- *     file,    file name;
+ *     file,    file name.
  *
  * Results:
  *     Return true if the specified file is readable.
@@ -388,7 +388,7 @@ Gua_Integer Fs_IsReadable(Gua_String file)
  *     Check if the specified file is writable.
  *
  * Arguments:
- *     file,    file name;
+ *     file,    file name.
  *
  * Results:
  *     Return true if the specified file is writable.
@@ -420,7 +420,7 @@ Gua_Integer Fs_IsWritable(Gua_String file)
  *
  * Arguments:
  *     source,    the source file name;
- *     target,    the target file name;
+ *     target,    the target file name.
  *
  * Results:
  *     Create a link to the source file.
@@ -535,7 +535,7 @@ Gua_Status Fs_List(Gua_String directory, Gua_Object *list, Gua_String error)
  *     Create the specified directory.
  *
  * Arguments:
- *     directory,    directory name;
+ *     directory,    directory name.
  *
  * Results:
  *     Create the specified directory.
@@ -569,7 +569,7 @@ Gua_Integer Fs_MkDir(Gua_String directory)
  *
  * Arguments:
  *     file,     the file name;
- *     name,     the file name without path;
+ *     name,     the file name without path.
  *
  * Results:
  *     Get the file name without path.
@@ -622,7 +622,7 @@ void Fs_Name(Gua_String file, Gua_String *name)
  *
  * Arguments:
  *     file,     the file name;
- *     path,     the file path;
+ *     path,     the file path.
  *
  * Results:
  *     Get the file path.
@@ -702,7 +702,7 @@ Gua_Status Fs_Rename(Gua_String source, Gua_String target, Gua_String error)
  *     Get the file size.
  *
  * Arguments:
- *     file,    the file name;
+ *     file,    the file name.
  *
  * Results:
  *     Return the file size.
@@ -733,7 +733,7 @@ Gua_Integer Fs_Size(Gua_String file)
  *     Get the modification file time.
  *
  * Arguments:
- *     file,    the file name;
+ *     file,    the file name.
  *
  * Results:
  *     Return the modification file time.

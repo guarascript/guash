@@ -55,6 +55,31 @@ unsigned int displayMode;
 int exitMainLoop;
 Glwm_ListItem *windowList;
 
+/*
+ * This configurations are from glxIntro.
+ * 
+ * For complete documentation see:
+ *     https://www.opengl.org/sdk/docs/man2/xhtml/glXIntro.xml
+ */
+int singleBufferAttributess[] = {
+    GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT,
+    GLX_RENDER_TYPE, GLX_RGBA_BIT,
+    GLX_RED_SIZE, 1,    /* Request a single buffered color buffer */
+    GLX_GREEN_SIZE, 1,  /* with the maximum number of color bits  */
+    GLX_BLUE_SIZE, 1,   /* for each component.                     */
+    None
+};
+
+int doubleBufferAttributes[] = {
+    GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT,
+    GLX_RENDER_TYPE, GLX_RGBA_BIT,
+    GLX_DOUBLEBUFFER, True,  /* Request a double-buffered color buffer with */
+    GLX_RED_SIZE, 1,         /* the maximum number of bits per component. */
+    GLX_GREEN_SIZE, 1, 
+    GLX_BLUE_SIZE, 1,
+    None
+};
+
 /**
  * Group:
  *     C
@@ -257,7 +282,11 @@ void Glwm_FreeList(Glwm_ListItem *list, void (*freefunc)(void *data))
     } else {
         Glwm_FreeList((Glwm_ListItem *)(list->next), freefunc);
         
-        freefunc(list->data);
+        if (freefunc != NULL) {
+            if (list->data != NULL) {
+                freefunc(list->data);
+            }
+        }
         
         free(list);
     }
@@ -354,6 +383,7 @@ int Glwm_Init(int *argc, char *argv[], char **env)
     char *value;
     int i;
     
+    /* Get the display name. */
     displayName = NULL;
     
     /* Get the environment variables. */
@@ -389,6 +419,7 @@ int Glwm_Init(int *argc, char *argv[], char **env)
         i++;
     }
     
+    /* Open a connection to the display. */
     deviceDisplay = XOpenDisplay(displayName);
     deviceContext = XUniqueContext();
     
@@ -403,32 +434,9 @@ int Glwm_Init(int *argc, char *argv[], char **env)
         free(displayName);
     }
     
-    displayMode = GLWM_RGBA | GLWM_SINGLE;
-    
     windowList = NULL;
     
     return 1;
-}
-
-/**
- * Group:
- *     C
- *
- * Function:
- *     void Glwm_InitDisplayMode(unsigned int mode)
- *
- * Description:
- *     Sets the default display mode.
- *
- * Arguments:
- *     mode,    the display mode.
- *
- * Results:
- *     The function sets the default display mode.
- */
-void Glwm_InitDisplayMode(unsigned int mode)
-{
-    displayMode = mode;
 }
 
 /**
@@ -451,8 +459,8 @@ Glwm_Window *Glwm_CreateWindow(char *title)
 {
     Glwm_Window *w;
     
-    GLint attributes[50];
-    int n;
+    GLXFBConfig *fbConfigs;
+    int nelements;
     XVisualInfo *visual;
     Window root;
     Colormap colormap;
@@ -461,96 +469,31 @@ Glwm_Window *Glwm_CreateWindow(char *title)
     Atom protocols;
     GLXContext context;
     
-    memset(attributes, 0, sizeof(attributes));
-    n = 0;
+    /*
+     * This configurations are from glxIntro.
+     * 
+     * For complete documentation see:
+     *     https://www.opengl.org/sdk/docs/man2/xhtml/glXIntro.xml
+     */
+
+    /*
+     * Request a suitable framebuffer configuration - try for a double 
+     * buffered configuration first.
+     */
+    fbConfigs = glXChooseFBConfig(deviceDisplay, DefaultScreen(deviceDisplay), doubleBufferAttributes, &nelements);
     
-    if (displayMode & GLWM_ACCUM) {
-        attributes[n] = GLX_ACCUM_RED_SIZE;
-        n++;
-        attributes[n] = 1;
-        n++;
-        attributes[n] = GLX_ACCUM_GREEN_SIZE;
-        n++;
-        attributes[n] = 1;
-        n++;
-        attributes[n] = GLX_ACCUM_BLUE_SIZE;
-        n++;
-        attributes[n] = 1;
-        n++;
-        if (displayMode & GLWM_ALPHA) {
-            attributes[n] = GLX_ACCUM_ALPHA_SIZE;
-            n++;
-            attributes[n] = 1;
-            n++;
-        }
-    }
-    if (displayMode & GLWM_ALPHA) {
-        attributes[n] = GLX_ALPHA_SIZE;
-        n++;
-        attributes[n] = 1;
-        n++;
-    }
-    if (displayMode & GLWM_DEPTH) {
-        attributes[n] = GLX_DEPTH_SIZE;
-        n++;
-        attributes[n] = 24;
-        n++;
-    }
-    if (displayMode & GLWM_DOUBLE) {
-        attributes[n] = GLX_DOUBLEBUFFER;
-        n++;
-        attributes[n] = True;
-        n++;
-    }
-    if (displayMode & GLWM_INDEX) {
-        attributes[n] = GLX_BUFFER_SIZE;
-        n++;
-        attributes[n] = 8;
-        n++;
-    } else {
-        attributes[n] = GLX_RED_SIZE;
-        n++;
-        attributes[n] = 1;
-        n++;
-        attributes[n] = GLX_GREEN_SIZE;
-        n++;
-        attributes[n] = 1;
-        n++;
-        attributes[n] = GLX_BLUE_SIZE;
-        n++;
-        attributes[n] = 1;
-        n++;
-        if (displayMode & GLWM_ALPHA) {
-            attributes[n] = GLX_ALPHA_SIZE;
-            n++;
-            attributes[n] = 1;
-            n++;
-        }
-    }
-    if (displayMode & GLWM_RGBA) {
-        attributes[n] = GLX_RGBA;
-        n++;
-    }
-    if (displayMode & GLWM_STENCIL) {
-        attributes[n] = GLX_STENCIL_SIZE;
-        n++;
-        attributes[n] = 1;
-        n++;
-    }
-    if (displayMode & GLWM_STEREO) {
-        attributes[n] = GLX_STEREO;
-        n++;
-        attributes[n] = True;
-        n++;
-    }
-    attributes[n] = None;
-    
-    visual = glXChooseVisual(deviceDisplay, 0, attributes);
-    
-    if(visual == NULL) {
-        return NULL;
+    /* No double buffered configs available. Sets single buffer. */
+    if (fbConfigs == NULL) {
+        fbConfigs = glXChooseFBConfig(deviceDisplay, DefaultScreen(deviceDisplay), singleBufferAttributess, &nelements);
     }
     
+    /*
+     * Create an X colormap and window with a visual matching the first
+     * returned framebuffer config.
+     */
+    visual = glXGetVisualFromFBConfig(deviceDisplay, fbConfigs[0]);
+    
+    /* Get the root window. */
     root = DefaultRootWindow(deviceDisplay);
     
     colormap = XCreateColormap(deviceDisplay, root, visual->visual, AllocNone);
@@ -558,16 +501,24 @@ Glwm_Window *Glwm_CreateWindow(char *title)
     windowAttributes.colormap = colormap;
     windowAttributes.event_mask = StructureNotifyMask | ExposureMask | VisibilityChangeMask | FocusChangeMask | KeyPressMask | KeyReleaseMask | EnterWindowMask | LeaveWindowMask | PointerMotionMask | ButtonPressMask | ButtonReleaseMask;
     
+    /* Create the requested window. */ 
     window = XCreateWindow(deviceDisplay, root, GLWM_DEFAULT_X, GLWM_DEFAULT_Y, GLWM_DEFAULT_WIDTH, GLWM_DEFAULT_HEIGHT, 0, visual->depth, InputOutput, visual->visual, CWColormap | CWEventMask, &windowAttributes);
     
+    /* Makes the window watches the CLOSE WINDOW event. */
     protocols = XInternAtom(deviceDisplay, "WM_DELETE_WINDOW", 0);
     XSetWMProtocols(deviceDisplay, window, &protocols, 1);
     
     XMapWindow(deviceDisplay, window);
     XStoreName(deviceDisplay, window, title);
     
+    /* Create a GLX context for OpenGL rendering. */
     context = glXCreateContext(deviceDisplay, visual, NULL, GL_TRUE);
+    
+    /* Bind the GLX context to the Window */
     glXMakeCurrent(deviceDisplay, window, context);
+    
+    /* Free the framebuffer config. */
+    XFree(fbConfigs);
     
     w = (Glwm_Window *)malloc(sizeof(Glwm_Window));
     memset(w, 0, sizeof(Glwm_Window));
@@ -612,19 +563,34 @@ void Glwm_FreeWindow(void *data)
     
     window = (Glwm_Window *)data;
     
-    glXMakeCurrent((Display *)(window->display), window->window, window->context);
-    
-    XDeleteContext(deviceDisplay, window->window, deviceContext);
-    
-    glXDestroyContext((Display *)(window->display), window->context);
-    XUnmapWindow((Display *)(window->display), window->window);
-    XDestroyWindow((Display *)(window->display), window->window);
-    XFreeColormap((Display *)(window->display), window->colormap);
-    XFree(window->visual);
-    
-    XFlush((Display *)(window->display));
-    
-    free(window);
+    if (window != 0) {
+        if (window->visual != 0) {
+            XFree(window->visual);
+            window->visual = 0;
+        }
+        
+        if (window->context != 0) {
+            glXDestroyContext((Display *)(window->display), window->context);
+            window->context = 0;
+        }
+        
+        if (window->window != 0) {
+            XDeleteContext(deviceDisplay, window->window, deviceContext);
+            
+            XUnmapWindow((Display *)(window->display), window->window);
+            XDestroyWindow((Display *)(window->display), window->window);
+            window->window = 0;
+        }
+        
+        if (window->colormap != 0) {
+            XFreeColormap((Display *)(window->display), window->colormap);
+            window->colormap = 0;
+        }
+        
+        XFlush((Display *)(window->display));
+        
+        free(window);
+    }
 }
 
 /**
@@ -1126,6 +1092,7 @@ void Glwm_MainIteration(void)
     
     window = NULL;
     
+    /* Run the event callbacks for all pendent events. */
     if (XPending(deviceDisplay)) {
         XNextEvent(deviceDisplay, &event);
         
@@ -1241,6 +1208,7 @@ void Glwm_MainIteration(void)
             
             XFlush((Display *)(window->display));
         }
+    /* If there is no pendent events, run the update and idle callbacks. */
     } else {
         item = windowList;
         
@@ -1302,9 +1270,11 @@ void Glwm_ExitMainLoop(void)
  */
 void Glwm_Terminate(void)
 {
-    XCloseDisplay(deviceDisplay);
-    
+    /* Free the windows list. */
     Glwm_FreeWindowList();
+    
+    /* Close the connection to the display. */
+    XCloseDisplay(deviceDisplay);
 }
 
 /**

@@ -232,6 +232,19 @@ Gua_Status Glo_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, G
         return GUA_ERROR;
     }
     
+    /**
+     * Group:
+     *     Scripting
+     *
+     * Function:
+     *     gloLoadObj(file, modifiers, degree)
+     *
+     * Description:
+     *      Load an OBJ file and returns an OpenGL list.
+     *
+     * Examples:
+     *     output == annProcess(ann, input, dim_in_j, dim_out_j).
+     */
     if (strcmp(Gua_ObjectToString(argv[0]), "gloLoadObj") == 0) {
         if (argc != 4) {
             errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
@@ -289,6 +302,19 @@ Gua_Status Glo_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, G
         model_list = glmList(model, arg2i);
         
         Gua_IntegerToPObject(object, model_list);
+    /**
+     * Group:
+     *     Scripting
+     *
+     * Function:
+     *     gloLoadPPM(file, "width", "height")
+     *
+     * Description:
+     *      Load a PPM image file.
+     *
+     * Examples:
+     *     texture = gloLoadPPM($texture_file, "texture_width", "texture_height").
+     */
     } else if (strcmp(Gua_ObjectToString(argv[0]), "gloLoadPPM") == 0) {
         if (argc != 4) {
             errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
@@ -343,6 +369,19 @@ Gua_Status Glo_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, G
             strcat(error, errMessage);
             Gua_Free(errMessage);
         }
+    /**
+     * Group:
+     *     Scripting
+     *
+     * Function:
+     *     gloSavePPM(texture, file, width, height)
+     *
+     * Description:
+     *      Save a PPM image file.
+     *
+     * Examples:
+     *     gloSavePPM(texture, "/tmp/texture.ppm", $texture_width, $texture_height).
+     */
     } else if (strcmp(Gua_ObjectToString(argv[0]), "gloSavePPM") == 0) {
         if (argc != 5) {
             errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);

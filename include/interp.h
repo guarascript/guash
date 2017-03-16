@@ -22,7 +22,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * RCS: @(#) $Id: interp.h,v 3.0 2015/10/11 23:41:00 monteiro Exp $
+ * RCS: @(#) $Id: interp.h,v 3.2 2015/11/24 15:33:00 monteiro Exp $
  *
  */
 
@@ -180,7 +180,7 @@
 #define SCOPE_STACK   1
 #define SCOPE_GLOBAL  2
 
-#define GUA_VERSION  "3.0"
+#define GUA_VERSION  "3.2"
 
 #define END_OF_LINE     '\n'
 #define EXPRESSION_END  '\0'

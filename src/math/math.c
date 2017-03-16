@@ -28,7 +28,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * RCS: @(#) $Id: math.c,v 2.1 2013/09/09 18:47:00 monteiro Exp $
+ * RCS: @(#) $Id: math.c,v 2.2 2013/11/14 15:35:00 monteiro Exp $
  * 
  */
 
@@ -487,7 +487,7 @@ Gua_Status Math_MathFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *ar
         }
         
         if (Gua_ObjectType(argv[1]) == OBJECT_TYPE_INTEGER) {
-            Gua_RealToPObject(object, fabs(Gua_ObjectToInteger(argv[1])));
+            Gua_RealToPObject(object, labs(Gua_ObjectToInteger(argv[1])));
         } else if (Gua_ObjectType(argv[1]) == OBJECT_TYPE_REAL) {
             Gua_RealToPObject(object, fabs(Gua_ObjectToReal(argv[1])));
         }
@@ -1005,7 +1005,7 @@ Gua_Status Math_MathFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *ar
             if (Gua_ObjectToInteger(argv[1]) > 0) {
                 Gua_RealToPObject(object, sqrt(Gua_ObjectToInteger(argv[1])));
             } else {
-                Gua_ComplexToPObject(object, 0.0, sqrt(fabs(Gua_ObjectToInteger(argv[1]))));
+                Gua_ComplexToPObject(object, 0.0, sqrt(labs(Gua_ObjectToInteger(argv[1]))));
             }
         } else if (Gua_ObjectType(argv[1]) == OBJECT_TYPE_REAL) {
             if (Gua_ObjectToReal(argv[1]) > 0) {

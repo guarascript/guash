@@ -3,7 +3,6 @@ Glwm_CreateWindow
 Glwm_DestroyWindow
 Glwm_GetTime
 Glwm_HideWindow
-Glwm_InitDisplayMode
 Glwm_MainIteration
 Glwm_MainLoop
 Glwm_MakeCurrent

@@ -27,7 +27,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * RCS: @(#) $Id: sqlite.c,v 2.0 2015/10/16 17:31:00 monteiro Exp $
+ * RCS: @(#) $Id: sqlite.c,v 2.1 2015/12/14 15:46:00 monteiro Exp $
  * 
  */
 
@@ -125,7 +125,7 @@ int Sqlite_Callback(void *argument, int n, char **value, char **key)
         }
         
         p = args->script;
-        p = Gua_Expression((Gua_Namespace *)(args->nspace), p, &object, &status, error);
+        p = Gua_Evaluate((Gua_Namespace *)(args->nspace), p, &object, &status, error);
         if (!Gua_IsObjectStored(object)) {
             Gua_FreeObject(&object);
         }
@@ -202,8 +202,12 @@ int Sqlite_Callback(void *argument, int n, char **value, char **key)
         }
     } else if (args->function == GUA_SQLITE_FUNCTION_ONE_COLUMN) {
         if (n > 0) {
-            Gua_StringToObject(args->object, value[0]);
+            if (value[0] != NULL) {
+                Gua_StringToObject(args->object, value[0]);
+            }
         }
+        
+        return 1;
     }
     
     return returnCode;
@@ -249,6 +253,16 @@ Gua_Status Sqlite_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv
         return GUA_ERROR;
     }
 
+    /**
+     * Group:
+     *     Scripting
+     *
+     * Function:
+     *     sqliteClose(database)
+     *
+     * Description:
+     *     Closes the database.
+     */
     if (strcmp(Gua_ObjectToString(argv[0]), "sqliteClose") == 0) {
         if (argc != 2) {
             errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
@@ -291,6 +305,16 @@ Gua_Status Sqlite_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv
         }
         
         Gua_SetHandlePointer((Gua_Handle *)h, NULL);
+    /**
+     * Group:
+     *     Scripting
+     *
+     * Function:
+     *     sqliteEval(database, query, script)
+     *
+     * Description:
+     *     Executes the specified SQL query and run the defined script for each returned row.
+     */
     } else if (strcmp(Gua_ObjectToString(argv[0]), "sqliteEval") == 0) {
         if ((argc < 3) || (argc > 4)) {
             errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
@@ -374,6 +398,16 @@ Gua_Status Sqlite_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv
                 return GUA_ERROR;
             }
         }
+    /**
+     * Group:
+     *     Scripting
+     *
+     * Function:
+     *     sqliteExecute(database, query, function)
+     *
+     * Description:
+     *     Executes the specified SQL query and call the defined function for each returned row.
+     */
     } else if (strcmp(Gua_ObjectToString(argv[0]), "sqliteExecute") == 0) {
         if ((argc < 3) || (argc > 4)) {
             errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
@@ -457,6 +491,16 @@ Gua_Status Sqlite_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv
                 return GUA_ERROR;
             }
         }
+    /**
+     * Group:
+     *     Scripting
+     *
+     * Function:
+     *     sqliteExists(database, query)
+     *
+     * Description:
+     *     Executes the specified SQL query and return 1 if any row is returned.
+     */
     } else if (strcmp(Gua_ObjectToString(argv[0]), "sqliteExists") == 0) {
         if (argc != 3) {
             errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
@@ -503,6 +547,8 @@ Gua_Status Sqlite_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv
         args.error = NULL;
         args.status = GUA_OK;
         
+        Gua_ClearObject(args.object);
+        
         returnCode = sqlite3_exec(db, Gua_ObjectToString(argv[2]), Sqlite_Callback, &args, &errMessage);
         
         if (returnCode != SQLITE_OK) {
@@ -514,6 +560,16 @@ Gua_Status Sqlite_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv
         } else {
             Gua_IntegerToPObject(object, 0);
         }
+    /**
+     * Group:
+     *     Scripting
+     *
+     * Function:
+     *     sqliteOneColumn(database, query)
+     *
+     * Description:
+     *     Executes the specified SQL query but return only the first row.
+     */
     } else if (strcmp(Gua_ObjectToString(argv[0]), "sqliteOneColumn") == 0) {
         if (argc != 3) {
             errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
@@ -560,6 +616,8 @@ Gua_Status Sqlite_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv
         args.error = NULL;
         args.status = GUA_OK;
         
+        Gua_ClearObject(args.object);
+        
         returnCode = sqlite3_exec(db, Gua_ObjectToString(argv[2]), Sqlite_Callback, &args, &errMessage);
         
         Gua_LinkToPObject(object, args.object);
@@ -572,6 +630,16 @@ Gua_Status Sqlite_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv
                 return GUA_ERROR;
             }
         }
+    /**
+     * Group:
+     *     Scripting
+     *
+     * Function:
+     *     sqliteOpen(file)
+     *
+     * Description:
+     *     Opens the specified database file and returns a handle to use it.
+     */
     } else if (strcmp(Gua_ObjectToString(argv[0]), "sqliteOpen") == 0) {
         if (argc != 2) {
             errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);

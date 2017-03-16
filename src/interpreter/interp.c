@@ -59,7 +59,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * RCS: @(#) $Id: interp.c,v 3.0 2015/10/11 23:41:00 monteiro Exp $
+ * RCS: @(#) $Id: interp.c,v 3.2 2015/11/24 15:33:00 monteiro Exp $
  * 
  */
 
@@ -6238,6 +6238,46 @@ Gua_Status Gua_BuiltInFunction(void *nspace, Gua_Short argc, Gua_Object *argv, G
         if (Gua_InvMatrix(&argv[1], object, error) != GUA_OK) {
             return GUA_ERROR;
         }
+    } else if (strcmp(Gua_ObjectToString(argv[0]), "isMatrixApproximatelyEqual") == 0) {
+        if (argc != 4) {
+            errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
+            sprintf(errMessage, "%s %-.20s...\n", "wrong number of arguments for function", Gua_ObjectToString(argv[0]));
+            strcat(error, errMessage);
+            Gua_Free(errMessage);
+            
+            return GUA_ERROR;
+        }
+        
+        if (Gua_ObjectType(argv[1]) != OBJECT_TYPE_MATRIX) {
+            errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
+            sprintf(errMessage, "%s %-.20s...\n", "illegal argument 1 for function", Gua_ObjectToString(argv[0]));
+            strcat(error, errMessage);
+            Gua_Free(errMessage);
+            
+            return GUA_ERROR;
+        }
+        if (Gua_ObjectType(argv[2]) != OBJECT_TYPE_MATRIX) {
+            errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
+            sprintf(errMessage, "%s %-.20s...\n", "illegal argument 2 for function", Gua_ObjectToString(argv[0]));
+            strcat(error, errMessage);
+            Gua_Free(errMessage);
+            
+            return GUA_ERROR;
+        }
+        if (Gua_ObjectType(argv[3]) != OBJECT_TYPE_REAL) {
+            errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
+            sprintf(errMessage, "%s %-.20s...\n", "illegal argument 3 for function", Gua_ObjectToString(argv[0]));
+            strcat(error, errMessage);
+            Gua_Free(errMessage);
+            
+            return GUA_ERROR;
+        }
+        
+        if (Gua_IsMatrixApproximatelyEqual(&argv[1], &argv[2], &argv[3])) {
+            Gua_IntegerToPObject(object, 1);
+        } else {
+            Gua_IntegerToPObject(object, 0);
+        }
     } else if (strcmp(Gua_ObjectToString(argv[0]), "keys") == 0) {
         if (argc != 2) {
             errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
@@ -6522,9 +6562,9 @@ Gua_Status Gua_BuiltInFunction(void *nspace, Gua_Short argc, Gua_Object *argv, G
             if (Gua_ObjectType(argv[1]) == OBJECT_TYPE_STRING) {
                 Gua_ByteArrayToPObject(object, Gua_ObjectToString(argv[1]), Gua_ObjectLength(argv[1]));
             } else if (Gua_ObjectType(argv[1]) == OBJECT_TYPE_ARRAY) {
-                Gua_CopyArray(object, &argv[1], false);
+                Gua_CopyArray(object, &(argv[1]), false);
             } else if (Gua_ObjectType(argv[1]) == OBJECT_TYPE_MATRIX) {
-                Gua_CopyMatrix(object, &argv[1], false);
+                Gua_CopyMatrix(object, &(argv[1]), false);
             } else {
                 Gua_LinkToPObject(object, argv[1]);
             }
@@ -6605,6 +6645,10 @@ Gua_Status Gua_BuiltInFunction(void *nspace, Gua_Short argc, Gua_Object *argv, G
         if (argc == 4) {
             n = Gua_ObjectToInteger(argv[3]);
             
+            if (Gua_ObjectType(o[n]) == OBJECT_TYPE_STRING) {
+                Gua_FreeObject(&(o[n]));
+            }
+            
             if (Gua_ObjectType(argv[2]) == OBJECT_TYPE_STRING) {
                 if (Gua_IsObjectStored(argv[2])) {
                     Gua_ByteArrayToObject(o[n], Gua_ObjectToString(argv[2]), Gua_ObjectLength(argv[2]));
@@ -6644,6 +6688,10 @@ Gua_Status Gua_BuiltInFunction(void *nspace, Gua_Short argc, Gua_Object *argv, G
                     n = n + Gua_ObjectToInteger(argv[i]) * p;
                     j++;
                 }
+            }
+            
+            if (Gua_ObjectType(o[n]) == OBJECT_TYPE_STRING) {
+                Gua_FreeObject(&(o[n]));
             }
             
             if (Gua_ObjectType(argv[2]) == OBJECT_TYPE_STRING) {
@@ -7436,7 +7484,7 @@ Gua_String Gua_ParseObject(Gua_Namespace *nspace, Gua_String start, Gua_Token *t
             strncpy(expression, token->start, token->length);
             
             argc = Gua_CountMatrixElements(expression);
-            argc+=3;
+            argc += 3;
             argv = (Gua_Object *)Gua_Alloc(sizeof(Gua_Object) * argc);
             
             Gua_ClearArguments(argc, argv);
@@ -7567,7 +7615,7 @@ Gua_String Gua_ParseObject(Gua_Namespace *nspace, Gua_String start, Gua_Token *t
                     strncpy(expression, token->start, token->length);
                     
                     argc = Gua_CountArguments(expression);
-                    argc+=2;
+                    argc += 2;
                     argv = (Gua_Object *)Gua_Alloc(sizeof(Gua_Object) * argc);
                     
                     Gua_ClearArguments(argc, argv);
@@ -7857,7 +7905,7 @@ Gua_String Gua_ParseObject(Gua_Namespace *nspace, Gua_String start, Gua_Token *t
                                     strncpy(expression, token->start, token->length);
                                     
                                     argc = Gua_CountArguments(expression);
-                                    argc+=2;
+                                    argc += 2;
                                     argv = (Gua_Object *)Gua_Alloc(sizeof(Gua_Object) * argc);
                                     
                                     Gua_ClearArguments(argc, argv);
@@ -8127,7 +8175,7 @@ Gua_String Gua_ParseObject(Gua_Namespace *nspace, Gua_String start, Gua_Token *t
                         strncpy(expression, token->start, token->length);
                         
                         argc = Gua_CountArguments(expression);
-                        argc+=2;
+                        argc += 2;
                         argv = (Gua_Object *)Gua_Alloc(sizeof(Gua_Object) * argc);
                         
                         Gua_ClearArguments(argc, argv);
@@ -8322,7 +8370,7 @@ Gua_String Gua_ParseObject(Gua_Namespace *nspace, Gua_String start, Gua_Token *t
                                 strncpy(expression, token->start, token->length);
                                 
                                 argc = Gua_CountArguments(expression);
-                                argc+=2;
+                                argc += 2;
                                 argv = (Gua_Object *)Gua_Alloc(sizeof(Gua_Object) * argc);
                                 
                                 Gua_ClearArguments(argc, argv);
@@ -10744,16 +10792,40 @@ Gua_String Gua_ParseEqual(Gua_Namespace *nspace, Gua_String start, Gua_Token *to
                 }
             } else if ((Gua_ObjectType(operand1) == OBJECT_TYPE_ARRAY) && (Gua_ObjectType(operand2) == OBJECT_TYPE_ARRAY)) {
                 Gua_IntegerToPObject(object, Gua_IsArrayEqual(&operand1, &operand2));
+                if (!Gua_IsObjectStored(operand1)) {
+                    Gua_FreeObject(&operand1);
+                }
+                if (!Gua_IsObjectStored(operand2)) {
+                    Gua_FreeObject(&operand2);
+                }
             } else if ((Gua_ObjectType(operand1) == OBJECT_TYPE_ARRAY) && (Gua_ObjectType(operand2) != OBJECT_TYPE_ARRAY)) {
                 Gua_IntegerToPObject(object, 0);
+                if (!Gua_IsObjectStored(operand1)) {
+                    Gua_FreeObject(&operand1);
+                }
             } else if ((Gua_ObjectType(operand1) != OBJECT_TYPE_ARRAY) && (Gua_ObjectType(operand2) == OBJECT_TYPE_ARRAY)) {
                 Gua_IntegerToPObject(object, 0);
+                if (!Gua_IsObjectStored(operand2)) {
+                    Gua_FreeObject(&operand1);
+                }
             } else if ((Gua_ObjectType(operand1) == OBJECT_TYPE_MATRIX) && (Gua_ObjectType(operand2) == OBJECT_TYPE_MATRIX)) {
                 Gua_IntegerToPObject(object, Gua_IsMatrixEqual(&operand1, &operand2));
+                if (!Gua_IsObjectStored(operand1)) {
+                    Gua_FreeObject(&operand1);
+                }
+                if (!Gua_IsObjectStored(operand2)) {
+                    Gua_FreeObject(&operand2);
+                }
             } else if ((Gua_ObjectType(operand1) == OBJECT_TYPE_MATRIX) && (Gua_ObjectType(operand2) != OBJECT_TYPE_MATRIX)) {
                 Gua_IntegerToPObject(object, 0);
+                if (!Gua_IsObjectStored(operand1)) {
+                    Gua_FreeObject(&operand1);
+                }
             } else if ((Gua_ObjectType(operand1) != OBJECT_TYPE_MATRIX) && (Gua_ObjectType(operand2) == OBJECT_TYPE_MATRIX)) {
                 Gua_IntegerToPObject(object, 0);
+                if (!Gua_IsObjectStored(operand2)) {
+                    Gua_FreeObject(&operand1);
+                }
             } else {
                 if (!Gua_IsObjectStored(operand1)) {
                     Gua_FreeObject(&operand1);
@@ -10902,16 +10974,40 @@ Gua_String Gua_ParseEqual(Gua_Namespace *nspace, Gua_String start, Gua_Token *to
                 }
             } else if ((Gua_ObjectType(operand1) == OBJECT_TYPE_ARRAY) && (Gua_ObjectType(operand2) == OBJECT_TYPE_ARRAY)) {
                 Gua_IntegerToPObject(object, !Gua_IsArrayEqual(&operand1, &operand2));
+                if (!Gua_IsObjectStored(operand1)) {
+                    Gua_FreeObject(&operand1);
+                }
+                if (!Gua_IsObjectStored(operand2)) {
+                    Gua_FreeObject(&operand2);
+                }
             } else if ((Gua_ObjectType(operand1) == OBJECT_TYPE_ARRAY) && (Gua_ObjectType(operand2) != OBJECT_TYPE_ARRAY)) {
                 Gua_IntegerToPObject(object, 1);
+                if (!Gua_IsObjectStored(operand1)) {
+                    Gua_FreeObject(&operand1);
+                }
             } else if ((Gua_ObjectType(operand1) != OBJECT_TYPE_ARRAY) && (Gua_ObjectType(operand2) == OBJECT_TYPE_ARRAY)) {
                 Gua_IntegerToPObject(object, 1);
+                if (!Gua_IsObjectStored(operand2)) {
+                    Gua_FreeObject(&operand1);
+                }
             } else if ((Gua_ObjectType(operand1) == OBJECT_TYPE_MATRIX) && (Gua_ObjectType(operand2) == OBJECT_TYPE_MATRIX)) {
                 Gua_IntegerToPObject(object, !Gua_IsMatrixEqual(&operand1, &operand2));
+                if (!Gua_IsObjectStored(operand1)) {
+                    Gua_FreeObject(&operand1);
+                }
+                if (!Gua_IsObjectStored(operand2)) {
+                    Gua_FreeObject(&operand2);
+                }
             } else if ((Gua_ObjectType(operand1) == OBJECT_TYPE_MATRIX) && (Gua_ObjectType(operand2) != OBJECT_TYPE_MATRIX)) {
                 Gua_IntegerToPObject(object, 1);
+                if (!Gua_IsObjectStored(operand1)) {
+                    Gua_FreeObject(&operand1);
+                }
             } else if ((Gua_ObjectType(operand1) != OBJECT_TYPE_MATRIX) && (Gua_ObjectType(operand2) == OBJECT_TYPE_MATRIX)) {
                 Gua_IntegerToPObject(object, 1);
+                if (!Gua_IsObjectStored(operand2)) {
+                    Gua_FreeObject(&operand1);
+                }
             } else {
                 if (!Gua_IsObjectStored(operand1)) {
                     Gua_FreeObject(&operand1);
@@ -12046,7 +12142,7 @@ Gua_String Gua_ParseAssignIndirection(Gua_Namespace *nspace, Gua_String start, G
                         strncpy(expression, token->start, token->length);
                         
                         argc = Gua_CountArguments(expression);
-                        argc+=3;
+                        argc += 3;
                         argv = (Gua_Object *)Gua_Alloc(sizeof(Gua_Object) * argc);
                         
                         Gua_ClearArguments(argc, argv);
@@ -12577,7 +12673,7 @@ Gua_String Gua_ParseAssignMacro(Gua_Namespace *nspace, Gua_String start, Gua_Tok
                         strncpy(expression, token->start, token->length);
                         
                         argc = Gua_CountArguments(expression);
-                        argc+=3;
+                        argc += 3;
                         argv = (Gua_Object *)Gua_Alloc(sizeof(Gua_Object) * argc);
                         
                         Gua_ClearArguments(argc, argv);
@@ -13045,7 +13141,7 @@ Gua_String Gua_ParseAssignMacro(Gua_Namespace *nspace, Gua_String start, Gua_Tok
                                 strncpy(expression, token->start, token->length);
                                 
                                 argc = Gua_CountArguments(expression);
-                                argc+=3;
+                                argc += 3;
                                 argv = (Gua_Object *)Gua_Alloc(sizeof(Gua_Object) * argc);
                                 
                                 Gua_ClearArguments(argc, argv);
@@ -13721,7 +13817,7 @@ Gua_String Gua_ParseAssignFunction(Gua_Namespace *nspace, Gua_String start, Gua_
                 *status = GUA_ERROR;
                 
                 errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
-                sprintf(errMessage, "%s %*.*s...\n", Gua_StatusTable[GUA_ERROR_UNEXPECTED_TOKEN], (int)token->length, (int)token->length, token->start);
+                sprintf(errMessage, "%s after function %-.20s...\n", Gua_StatusTable[GUA_ERROR_UNEXPECTED_TOKEN], name);
                 strcat(error, errMessage);
                 Gua_Free(errMessage);
             }
@@ -14058,7 +14154,7 @@ Gua_String Gua_ParseAssignVariable(Gua_Namespace *nspace, Gua_String start, Gua_
                     strncpy(expression, token->start, token->length);
                     
                     argc = Gua_CountArguments(expression);
-                    argc+=3;
+                    argc += 3;
                     argv = (Gua_Object *)Gua_Alloc(sizeof(Gua_Object) * argc);
                     
                     Gua_ClearArguments(argc, argv);
@@ -17231,7 +17327,7 @@ Gua_String Gua_Expression(Gua_Namespace *nspace, Gua_String start, Gua_Object *o
         if (*status == GUA_EXIT) {
             break;
         }
-                
+        
         if (token.type == TOKEN_TYPE_SEPARATOR) {
             if (!Gua_IsPObjectStored(object)) {
                 Gua_FreeObject(object);
@@ -17411,7 +17507,7 @@ Gua_String Gua_Evaluate(Gua_Namespace *nspace, Gua_String start, Gua_Object *obj
         if (*status == GUA_EXIT) {
             break;
         }
-                
+        
         if (token.type == TOKEN_TYPE_COMMENT) {
             continue;
         } else if (token.type == TOKEN_TYPE_END) {
@@ -17740,6 +17836,12 @@ Gua_Status Gua_Init(Gua_Namespace *nspace, int argc, char *argv[], char **env, G
     if (Gua_SetFunction((Gua_Namespace *)nspace, "inv", &function) != GUA_OK) {
         errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
         sprintf(errMessage, "%s %-.20s...\n", "can't set function", "inv");
+        strcat(error, errMessage);
+        Gua_Free(errMessage);
+    }
+    if (Gua_SetFunction((Gua_Namespace *)nspace, "isMatrixApproximatelyEqual", &function) != GUA_OK) {
+        errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
+        sprintf(errMessage, "%s %-.20s...\n", "can't set function", "isMatrixApproximatelyEqual");
         strcat(error, errMessage);
         Gua_Free(errMessage);
     }

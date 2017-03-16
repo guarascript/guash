@@ -103,7 +103,7 @@ int Bdf_GetTokens(char *expression, char *separator, int *tokc, char ***tokv)
     p = expression;
     
     start = p;
-    end= p;
+    end = p;
     
     i = 0;
     

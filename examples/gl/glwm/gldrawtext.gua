@@ -21,8 +21,6 @@ function keyPress(window, key, x, y) {
 script_file = fsFullPath($argv[1]);
 script_path = fsPath(script_file);
 
-glwmInitDisplayMode(GLWM_RGBA | GLWM_DEPTH | GLWM_DOUBLE);
-
 window = "";
 window = glwmCreateWindow("GLWM Test");
 

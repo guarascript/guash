@@ -76,6 +76,16 @@ Gua_Status Glu_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, G
     GLdouble arg9d;
     Gua_String errMessage;
     
+    arg1d = 0.0;
+    arg2d = 0.0;
+    arg3d = 0.0;
+    arg4d = 0.0;
+    arg5d = 0.0;
+    arg6d = 0.0;
+    arg7d = 0.0;
+    arg8d = 0.0;
+    arg9d = 0.0;
+    
     Gua_ClearPObject(object);
     
     if (argc == 0) {

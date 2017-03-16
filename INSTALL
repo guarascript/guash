@@ -25,11 +25,13 @@ To install the GuaraScript interpreter on a Linux machine:
 4) Copile the source code:
     make
     make ./bin/glutguash
-    make ./bin/glfwguash
+    make ./bin/glwmguash
 5) Install binaries:
     make install
     make install_glutguash
-    make install_glfwguash
+    make install_glwmguash
+6) Install syntax highlight for GTK based IDEs:
+    make install_language_specs
 
 glguash is the GuaraScript interpreter with the OpenGL, GLU, GLUT and GLUTIL extensions
 built in. glguash is neccessary in order to run the OpenGL examples provided with guash.
@@ -59,9 +61,11 @@ To install the GuaraScript interpreter on a Mac OS X machine:
 5) Copile the source code:
     make -f Makefile.MacOSX
     make -f Makefile.MacOSX ./bin/glutguash
-    make -f Makefile.MacOSX ./bin/glfwguash
+    make -f Makefile.MacOSX ./bin/glwmguash
 6) Install binaries:
     make -f Makefile.MacOSX install
     make -f Makefile.MacOSX install_glutguash
-    make -f Makefile.MacOSX install_glfwguash
+    make -f Makefile.MacOSX install_glwmguash
+6) Install syntax highlight for GTK based IDEs:
+    make install_language_specs
 

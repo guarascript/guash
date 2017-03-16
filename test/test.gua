@@ -73,4 +73,9 @@ test (50) {
 }
 fputs("\"string.gua\", " + GUA_TIME + "\n", fp)
 
+test (50) {
+	exec(exe_name + " " + test_dir + "/time.gua " + tries)
+}
+fputs("\"time.gua\", " + GUA_TIME + "\n", fp)
+
 fp = fclose(fp)

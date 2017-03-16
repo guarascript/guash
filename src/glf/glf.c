@@ -73,6 +73,19 @@ Gua_Status Glf_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, G
         return GUA_ERROR;
     }
 
+    /**
+     * Group:
+     *     Scripting
+     *
+     * Function:
+     *     glfDrawText(x, y, font, text)
+     *
+     * Description:
+     *       Draw a text string in an OpenGL surface.
+     *
+     * Examples:
+     *     glfDrawText(0.0, 0.7, $script_path + "/fonts/6x13.bdf", "Hello World!").
+     */
     if (strcmp(Gua_ObjectToString(argv[0]), "glfDrawText") == 0) {
         if (argc != 5) {
             errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);

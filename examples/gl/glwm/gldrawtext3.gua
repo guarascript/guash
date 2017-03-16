@@ -1,10 +1,5 @@
 #!/usr/local/bin/glwmguash
 
-window_x_start_position = 100;
-window_y_start_position = 100;
-windows_height          = 480;
-windows_width           = 640;
-
 function display(window) {
     glwmMakeCurrent(window);
     
@@ -40,7 +35,7 @@ function display(window) {
     
     glFlush();
     
-    #glwmSwapBuffers(window);
+    glwmSwapBuffers(window);
 }
 
 function display2(window) {
@@ -81,7 +76,7 @@ function display2(window) {
     
     glFlush();
     
-    #glwmSwapBuffers(window);
+    glwmSwapBuffers(window);
 }
 
 function reshape(window) {
@@ -105,6 +100,8 @@ function closeWindow(window) {
     printf("Close\n");
     
     glwmDestroyWindow(window);
+    
+    #glwmExitMainLoop();
 }
 
 function closeWindow2(window) {
@@ -113,6 +110,8 @@ function closeWindow2(window) {
     printf("Close\n");
     
     glwmDestroyWindow(window);
+    
+    #glwmExitMainLoop();
 }
 
 function keyPress(window, key, x, y) {
@@ -164,8 +163,6 @@ function mouseButtonRelease(window, button, state, x, y) {
 script_file = fsFullPath($argv[1]);
 script_path = fsPath(script_file);
 
-#glwmInitDisplayMode(GLWM_RGBA | GLWM_DEPTH | GLWM_DOUBLE);
-
 window = glwmCreateWindow("GLWM Test");
 
 if (!exists("window")) {
@@ -186,8 +183,8 @@ glwmRegisterMouseButtonPressFunc(window, "mouseButtonPress");
 glwmRegisterMouseButtonReleaseFunc(window, "mouseButtonRelease");
 glwmRegisterCloseFunc(window, "closeWindow");
 
-glwmSetWindowPos(window, window_x_start_position, window_y_start_position);
-glwmSetWindowSize(window, windows_width, windows_height);
+glwmSetWindowPos(window, 100, 100);
+glwmSetWindowSize(window, 640, 480);
 
 window2 = glwmCreateWindow("GLWM Test 2");
 
@@ -203,6 +200,9 @@ glwmRegisterCloseFunc(window2, "closeWindow2");
 t1 = glwmGetTime();
 
 glwmMainLoop();
+
+#glwmDestroyWindow(window);
+#glwmDestroyWindow(window2);
 
 glwmTerminate();
 

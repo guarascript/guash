@@ -94,11 +94,13 @@ println("Test completed in " + GUA_TIME + " seconds.")
 println("Tries = " + GUA_TRIES)
 
 println("sqliteOneColumn...")
-test (tries; "value 1") {
+test (tries; "value 10") {
     lastRow = ""
     
-    sqliteExecute(db, "INSERT INTO test(col1, col2) VALUES('value 1','value 2')")
-    sqliteOneColumn(db, "SELECT * FROM test")
+    for (i = 0; i <= 10; i = i + 1) {
+        sqliteExecute(db, "INSERT INTO test(col1, col2) VALUES('value " + sprintf("%02d", i) + "','value 2')")
+    }
+    sqliteOneColumn(db, "SELECT * FROM test ORDER BY col1 DESC")
 } catch {
     println("TEST: Fail in expression \"sqliteOneColumn(db, \"SELECT * FROM test\")\".")
     print("      Expected result ")

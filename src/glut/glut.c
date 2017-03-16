@@ -1253,6 +1253,7 @@ Gua_Status Glut_FunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, 
     arg2i = 0;
     arg3i = 0;
     arg4i = 0;
+    arg5i = 0;
     
     arg1d = 0.0;
     arg2d = 0.0;

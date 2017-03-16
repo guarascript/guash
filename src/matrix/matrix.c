@@ -28,7 +28,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * RCS: @(#) $Id: matrix.c,v 2.1 2013/09/09 18:47:00 monteiro Exp $
+ * RCS: @(#) $Id: matrix.c,v 2.3 2017/01/07 17:49:00 monteiro Exp $
  * 
  */
 
@@ -796,6 +796,71 @@ Gua_Status Matrix_Sum(Gua_Object *a, Gua_Object *object, Gua_String error)
                 sum = sum + Gua_ObjectToInteger(o[i]);
             } else if (Gua_ObjectType(o[i]) == OBJECT_TYPE_REAL) {
                 sum = sum + Gua_ObjectToReal(o[i]);
+            }
+        }
+
+        Gua_RealToPObject(object, sum);
+    }
+    
+    return GUA_OK;
+}
+
+/**
+ * Group:
+ *     C
+ *
+ * Function:
+ *     Gua_Status Matrix_Sum2(Gua_Object *a, Gua_Object *object, Gua_String error)
+ *
+ * Description:
+ *     Calculate the squared sum of all cells in the matrix.
+ *
+ * Arguments:
+ *     a,         a matrix;
+ *     object,    a structure containing the return object of the function;
+ *     error,     a pointer to the error message.
+ *
+ * Results:
+ *     The function returns the squared sum of all cells in the matrix.
+ */
+Gua_Status Matrix_Sum2(Gua_Object *a, Gua_Object *object, Gua_String error)
+{
+    Gua_Matrix *m;
+    Gua_Object *o;
+    Gua_Length length;
+    Gua_Integer i;
+    Gua_Real sum;
+    Gua_String errMessage;
+    
+    if (Gua_PObjectType(a) != OBJECT_TYPE_MATRIX) {
+        errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
+        sprintf(errMessage, "%s...\n", "illegal argument");
+        strcat(error, errMessage);
+        Gua_Free(errMessage);
+        
+        return GUA_ERROR;
+    }
+    
+    m = (Gua_Matrix *)Gua_PObjectToMatrix(a);
+    
+    if (m) {
+        if(!Gua_IsPObjectStored(object)) {
+            Gua_FreeObject(object);
+        } else {
+            Gua_ClearPObject(object);
+        }
+        
+        o = (Gua_Object *)m->object;
+        
+        length = Gua_PObjectLength(a);
+
+        sum = 0;
+
+        for (i = 0; i < length; i++) {
+            if (Gua_ObjectType(o[i]) == OBJECT_TYPE_INTEGER) {
+                sum = sum + Gua_ObjectToInteger(o[i]) * Gua_ObjectToInteger(o[i]);
+            } else if (Gua_ObjectType(o[i]) == OBJECT_TYPE_REAL) {
+                sum = sum + Gua_ObjectToReal(o[i]) * Gua_ObjectToReal(o[i]);
             }
         }
 
@@ -2468,6 +2533,27 @@ Gua_Status Matrix_MatrixFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object
                 return GUA_ERROR;
             }
         }
+    } else if (strcmp(Gua_ObjectToString(argv[0]), "sum2") == 0) {
+        if (argc != 2) {
+            errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
+            sprintf(errMessage, "%s %-.20s...\n", "wrong number of arguments for function", Gua_ObjectToString(argv[0]));
+            strcat(error, errMessage);
+            Gua_Free(errMessage);
+            
+            return GUA_ERROR;
+        }
+        if (Gua_ObjectType(argv[1]) != OBJECT_TYPE_MATRIX) {
+            errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
+            sprintf(errMessage, "%s %-.20s...\n", "illegal argument 1 for function", Gua_ObjectToString(argv[0]));
+            strcat(error, errMessage);
+            Gua_Free(errMessage);
+            
+            return GUA_ERROR;
+        }
+        
+        if (Matrix_Sum2(&argv[1], object, error) != GUA_OK) {
+            return GUA_ERROR;
+        }
     } else if (strcmp(Gua_ObjectToString(argv[0]), "trans") == 0) {
         if (argc != 2) {
             errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
@@ -2650,6 +2736,12 @@ Gua_Status Matrix_Init(void *nspace, int argc, char *argv[], char **env, Gua_Str
     if (Gua_SetFunction((Gua_Namespace *)nspace, "sum", &function) != GUA_OK) {
         errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
         sprintf(errMessage, "%s %-.20s...\n", "can't set function", "sum");
+        strcat(error, errMessage);
+        Gua_Free(errMessage);
+    }
+    if (Gua_SetFunction((Gua_Namespace *)nspace, "sum2", &function) != GUA_OK) {
+        errMessage = (Gua_String) Gua_Alloc(sizeof(char) * MAX_ERROR_MSG_SIZE + 1);
+        sprintf(errMessage, "%s %-.20s...\n", "can't set function", "sum2");
         strcat(error, errMessage);
         Gua_Free(errMessage);
     }

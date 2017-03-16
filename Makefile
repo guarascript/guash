@@ -34,11 +34,11 @@ GLWM_CFLAGS = -g -Wall -iquote "${INC_DIR}" -D _LINUX_ -D _OPENGL_ -D _GLWM_
 
 SQLITE_CFLAGS = -DSQLITE_THREADSAFE=0 -DSQLITE_OMIT_LOAD_EXTENSION
 
-LDFLAGS =
-GLUT_LDFLAGS =
-GLWM_LDFLAGS =
+LDFLAGS = -export-dynamic
+GLUT_LDFLAGS = -export-dynamic
+GLWM_LDFLAGS = -export-dynamic
 
-LIBS = -l m
+LIBS = -l m -l dl
 GLUT_LIBS = -L /usr/X11R6/lib -l X11 -l glut -l GL -l GLU
 GLWM_LIBS = -l X11 -l GL
 
@@ -143,11 +143,11 @@ utf8.o: $(SRC_DIR)/utf8/utf8.c $(INC_DIR)/utf8.h
 guash.o: $(SRC_DIR)/shell/guash.c
 	$(CC) $(CFLAGS) -o $(SRC_DIR)/shell/guash.o -c $(SRC_DIR)/shell/guash.c
 	
-glutguash.o: $(SRC_DIR)/shell/glutguash.c
-	$(CC) $(GLUT_CFLAGS) -o $(SRC_DIR)/shell/glutguash.o -c $(SRC_DIR)/shell/glutguash.c
+glutguash.o: $(SRC_DIR)/shell/guash.c
+	$(CC) $(GLUT_CFLAGS) -o $(SRC_DIR)/shell/glutguash.o -c $(SRC_DIR)/shell/guash.c
 
-glwmguash.o: $(SRC_DIR)/shell/glwmguash.c
-	$(CC) $(GLWM_CFLAGS) -o $(SRC_DIR)/shell/glwmguash.o -c $(SRC_DIR)/shell/glwmguash.c
+glwmguash.o: $(SRC_DIR)/shell/guash.c
+	$(CC) $(GLWM_CFLAGS) -o $(SRC_DIR)/shell/glwmguash.o -c $(SRC_DIR)/shell/guash.c
 
 beautiful: $(SRC_TREE)/tools/tab2spaces/tab2spaces
 	$(SRC_TREE)/tools/tab2spaces/tab2spaces.sh $(SRC_TREE)/tools/tab2spaces $(SRC_DIR)/array/*.c
@@ -189,22 +189,15 @@ $(SRC_TREE)/tools/tab2spaces/tab2spaces: $(SRC_TREE)/tools/tab2spaces/tab2spaces
 
 install: all
 	$(CP) $(BIN_DIR)/$(EXE_NAME) $(PREFIX)/bin
-	$(CP) $(BIN_DIR)/*.sh $(PREFIX)/bin
 
 install_glutguash: all
 	$(CP) $(BIN_DIR)/$(GLUT_EXE_NAME) $(PREFIX)/bin
-	$(CP) $(BIN_DIR)/*.sh $(PREFIX)/bin
 
 install_glwmguash: all
 	$(CP) $(BIN_DIR)/$(GLWM_EXE_NAME) $(PREFIX)/bin
-	$(CP) $(BIN_DIR)/*.sh $(PREFIX)/bin
 
 install_language_specs: $(IDE_DIR)/language-specs/gua.lang
 	$(CP) $(IDE_DIR)/language-specs/* $(LANGUAGE_SPECS_DIR)
-
-install_gedit_language_snippets: $(IDE_DIR)/language-specs/gua.lang
-	mkdir -p /home/$(USER)/.config/gedit/snippets
-	$(CP) $(IDE_DIR)/gedit-language-snippets/* /home/$(USER)/.config/gedit/snippets
 
 clean:
 	rm -rf $(SRC_TREE)/*~ $(SRC_TREE)*.bak

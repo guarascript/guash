@@ -1,5 +1,5 @@
-CC = i586-mingw32msvc-gcc
-WINDRES = i586-mingw32msvc-windres
+CC = gcc
+WINDRES = windres
 
 CP = cp -rf
 
@@ -37,7 +37,7 @@ LDFLAGS =
 GLUT_LDFLAGS =
 
 LIBS = -l m
-GLUT_LIBS = -mconsole $(LIB_DIR)/windows/glut/glut32.lib -lopengl32 -lglu32 -lglu32
+GLUT_LIBS = -mconsole $(LIB_DIR)/glut/glut32.lib -l opengl32 -l glu32
 
 all: $(BIN_DIR)/$(EXE_NAME)
 
@@ -46,14 +46,6 @@ $(BIN_DIR)/$(EXE_NAME): $(SRC_DIR)/array/array.o $(SRC_DIR)/complex/complex.o $(
 
 $(BIN_DIR)/$(GLUT_EXE_NAME): $(SRC_DIR)/array/array.o $(SRC_DIR)/complex/complex.o $(SRC_DIR)/file/unix/file.o $(SRC_DIR)/fs/unix/fs.o $(SRC_DIR)/gl/gl.o $(SRC_DIR)/glf/bdf.o $(SRC_DIR)/glf/glf.o $(SRC_DIR)/glf/glft.o $(SRC_DIR)/glo/glm.o $(SRC_DIR)/glo/glo.o $(SRC_DIR)/glu/glu.o $(SRC_DIR)/glut/glut.o glutguash.o $(ICO_DIR)/icon48.res $(SRC_DIR)/interpreter/interp.o $(SRC_DIR)/match/match.o $(SRC_DIR)/math/math.o $(SRC_DIR)/matrix/matrix.o $(SRC_DIR)/numeric/numeric.o $(SRC_DIR)/printf/printf.o $(SRC_DIR)/regexp/regexp.o $(SRC_DIR)/sqlite/sqlite.o $(SRC_DIR)/sqlite/sqlite3.o $(SRC_DIR)/string/string.o $(SRC_DIR)/system/unix/system.o $(SRC_DIR)/time/strptime.o $(SRC_DIR)/time/time.o $(SRC_DIR)/utf8/utf8.o
 	$(CC) $(GLUT_LDFLAGS) -o $(BIN_DIR)/$(GLUT_EXE_NAME) $(SRC_DIR)/array/array.o $(SRC_DIR)/complex/complex.o $(SRC_DIR)/file/unix/file.o $(SRC_DIR)/fs/unix/fs.o $(SRC_DIR)/gl/gl.o $(SRC_DIR)/glf/bdf.o $(SRC_DIR)/glf/glf.o $(SRC_DIR)/glf/glft.o $(SRC_DIR)/glo/glm.o $(SRC_DIR)/glo/glo.o $(SRC_DIR)/glu/glu.o $(SRC_DIR)/glut/glut.o $(SRC_DIR)/shell/glutguash.o $(ICO_DIR)/icon48.res $(SRC_DIR)/interpreter/interp.o $(SRC_DIR)/match/match.o $(SRC_DIR)/math/math.o $(SRC_DIR)/matrix/matrix.o $(SRC_DIR)/numeric/numeric.o $(SRC_DIR)/printf/printf.o $(SRC_DIR)/regexp/regexp.o $(SRC_DIR)/sqlite/sqlite.o $(SRC_DIR)/sqlite/sqlite3.o $(SRC_DIR)/string/string.o $(SRC_DIR)/system/unix/system.o $(SRC_DIR)/time/strptime.o $(SRC_DIR)/time/time.o $(SRC_DIR)/utf8/utf8.o $(LIBS) $(GLUT_LIBS)
-
-all: $(BIN_DIR)/$(EXE_NAME)
-
-$(BIN_DIR)/$(EXE_NAME): $(SRC_DIR)/array/array.o $(SRC_DIR)/complex/complex.o $(SRC_DIR)/file/unix/file.o $(SRC_DIR)/fs/unix/fs.o $(SRC_DIR)/shell/guash.o $(SRC_DIR)/interpreter/interp.o $(SRC_DIR)/match/match.o $(SRC_DIR)/math/math.o $(SRC_DIR)/matrix/matrix.o $(SRC_DIR)/numeric/numeric.o $(SRC_DIR)/printf/printf.o $(SRC_DIR)/regexp/regexp.o $(SRC_DIR)/sqlite/sqlite.o $(SRC_DIR)/sqlite/sqlite3.o $(SRC_DIR)/string/string.o $(SRC_DIR)/system/unix/system.o $(SRC_DIR)/time/strptime.o $(SRC_DIR)/time/time.o $(SRC_DIR)/tui/unix/tui.o $(SRC_DIR)/utf8/utf8.o
-	$(CC) $(LDFLAGS) -o $(BIN_DIR)/$(EXE_NAME) $(SRC_DIR)/array/array.o $(SRC_DIR)/complex/complex.o $(SRC_DIR)/file/unix/file.o $(SRC_DIR)/fs/unix/fs.o $(SRC_DIR)/shell/guash.o $(SRC_DIR)/interpreter/interp.o $(SRC_DIR)/match/match.o $(SRC_DIR)/math/math.o $(SRC_DIR)/matrix/matrix.o $(SRC_DIR)/numeric/numeric.o $(SRC_DIR)/printf/printf.o $(SRC_DIR)/regexp/regexp.o $(SRC_DIR)/sqlite/sqlite.o $(SRC_DIR)/sqlite/sqlite3.o $(SRC_DIR)/string/string.o $(SRC_DIR)/system/unix/system.o $(SRC_DIR)/time/strptime.o $(SRC_DIR)/time/time.o $(SRC_DIR)/tui/unix/tui.o $(SRC_DIR)/utf8/utf8.o $(LIBS)
-
-$(BIN_DIR)/$(GLUT_EXE_NAME): $(SRC_DIR)/array/array.o $(SRC_DIR)/complex/complex.o $(SRC_DIR)/file/unix/file.o $(SRC_DIR)/fs/unix/fs.o $(SRC_DIR)/gl/gl.o $(SRC_DIR)/glf/bdf.o $(SRC_DIR)/glf/glf.o $(SRC_DIR)/glf/glft.o $(SRC_DIR)/glo/glm.o $(SRC_DIR)/glo/glo.o $(SRC_DIR)/glu/glu.o $(SRC_DIR)/glut/glut.o glutguash.o $(SRC_DIR)/interpreter/interp.o $(SRC_DIR)/match/match.o $(SRC_DIR)/math/math.o $(SRC_DIR)/matrix/matrix.o $(SRC_DIR)/numeric/numeric.o $(SRC_DIR)/printf/printf.o $(SRC_DIR)/regexp/regexp.o $(SRC_DIR)/sqlite/sqlite.o $(SRC_DIR)/sqlite/sqlite3.o $(SRC_DIR)/string/string.o $(SRC_DIR)/system/unix/system.o $(SRC_DIR)/time/strptime.o $(SRC_DIR)/time/time.o $(SRC_DIR)/tui/unix/tui.o $(SRC_DIR)/utf8/utf8.o
-	$(CC) $(GLUT_LDFLAGS) -o $(BIN_DIR)/$(GLUT_EXE_NAME) $(SRC_DIR)/array/array.o $(SRC_DIR)/complex/complex.o $(SRC_DIR)/file/unix/file.o $(SRC_DIR)/fs/unix/fs.o $(SRC_DIR)/gl/gl.o $(SRC_DIR)/glf/bdf.o $(SRC_DIR)/glf/glf.o $(SRC_DIR)/glf/glft.o $(SRC_DIR)/glo/glm.o $(SRC_DIR)/glo/glo.o $(SRC_DIR)/glu/glu.o $(SRC_DIR)/glut/glut.o $(SRC_DIR)/shell/glutguash.o $(SRC_DIR)/interpreter/interp.o $(SRC_DIR)/match/match.o $(SRC_DIR)/math/math.o $(SRC_DIR)/matrix/matrix.o $(SRC_DIR)/numeric/numeric.o $(SRC_DIR)/printf/printf.o $(SRC_DIR)/regexp/regexp.o $(SRC_DIR)/sqlite/sqlite.o $(SRC_DIR)/sqlite/sqlite3.o $(SRC_DIR)/string/string.o $(SRC_DIR)/system/unix/system.o $(SRC_DIR)/time/strptime.o $(SRC_DIR)/time/time.o $(SRC_DIR)/tui/unix/tui.o $(SRC_DIR)/utf8/utf8.o $(LIBS) $(GLUT_LIBS)
 
 array.o: $(SRC_DIR)/array/array.c $(INC_DIR)/array.h
 	$(CC) $(CFLAGS) -o $(SRC_DIR)/array/array.o -c $(SRC_DIR)/array/array.c

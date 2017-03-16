@@ -1,58 +1,94 @@
+2015-12-15 Roberto Luiz Souza Monteiro <roberto@souzamonteiro.com>
+
+*printf.c:
+*printf.h:
+Memory leak fix on function printf.
+
+2015-12-14 Roberto Luiz Souza Monteiro <roberto@souzamonteiro.com>
+
+*system.c:
+*system.h:
+Added functions load and include..
+Bug fix on function source.
+
+2015-11-24 Roberto Luiz Souza Monteiro <roberto@souzamonteiro.com>
+
+*interp.c (Gua_ParseEqual):
+*interp.h:
+Bug fix on matrix comparation.
+
+2015-11-14 Roberto Luiz Souza Monteiro <roberto@souzamonteiro.com>
+
+*math.c (Gua_ParseAssignFunction):
+*math.h:
+Bug fix on fabs function.
+
+2015-11-11 Roberto Luiz Souza Monteiro <roberto@souzamonteiro.com>
+
+*interp.c (Gua_ParseAssignFunction):
+*interp.h:
+Bug fix on ETS.
+
+2015-10-30 Roberto Luiz Souza Monteiro <roberto@souzamonteiro.com>
+
+*sqlite.c:
+Bug fix on sqliteExists and sqliteOneColumn functions.
+
 2015-10-26 Roberto Luiz Souza Monteiro <roberto@souzamonteiro.com>
 
-*glw.c
-*glwm.c
-*glwm.h
+*glw.c:
+*glwm.c:
+*glwm.h:
 Bug fix on GLWM multi-window event handle.
 
-*glfw.c
-*glfw.h
-*guash.c
+*glfw.c:
+*glfw.h:
+*guash.c:
 Removed GLFW support.
 
 2015-10-22 Roberto Luiz Souza Monteiro <roberto@souzamonteiro.com>
 
-*guash.c
+*guash.c:
 Added GLWM support.
 
-*glwm.c
+*glwm.c:
 Implemented GLWM support.
 
 2015-10-13 Roberto Luiz Souza Monteiro <roberto@souzamonteiro.com>
 
-*interp.c
+*interp.c:
 Bug fix on function Gua_KeyValuePairsToArray.
 
 2015-10-11 Roberto Luiz Souza Monteiro <roberto@souzamonteiro.com>
 
-* match.c
-* match.h
+* match.c:
+* match.h:
 Created functions match and glob.
 
-* regexp.c
-* regexp.h
+* regexp.c:
+* regexp.h:
 Created regular expression functions regexp and regsub.
 
 * glo.c:
 * glo.h:
 Package Glutil renamed to Glo.
 
-* glft.c
-* glft.h
-* glf.c
-* glf.h
+* glft.c:
+* glft.h:
+* glf.c:
+* glf.h:
 Added package Glf for font render on OpenGL.
 
-* time.c
-* time.h
+* time.c:
+* time.h:
 All time related functions moved to package Time.
 
-* strptime.c
-* strptime.h
+* strptime.c:
+* strptime.h:
 Created an OS independent version of the BSD strptime function.
 
-* interp.c
-* interp.h
+* interp.c:
+* interp.h:
 Bug fix on function creation and search scope. Now functions are created on the local scop ever.
 
 2014-08-06 Roberto Luiz Souza Monteiro <roberto@souzamonteiro.com>

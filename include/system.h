@@ -22,11 +22,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * RCS: @(#) $Id: system.h,v 2.4 2015/10/10 15:14:00 monteiro Exp $
+ * RCS: @(#) $Id: system.h,v 2.6 2017/02/09 21:17:00 monteiro Exp $
  * 
  */
 
-#define SYSTEM_VERSION "2.4"
+#define SYSTEM_VERSION "2.6"
 
 #ifdef _LINUX_
     #define SYSTEM_HOST "linux"
@@ -42,9 +42,22 @@
     #define SYSTEM_ARCH "x86"
 #endif
 
+typedef struct {
+    void *data;
+    void *previous;
+    void *next;
+} System_ListItem;
+
+/* Function to maintain the list of opened libraries. */
+System_ListItem *System_AddListItem(System_ListItem **list, void *data);
+void System_FreeList(System_ListItem *list);
+
+Gua_Status System_ExecFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gua_Object *object, Gua_String error);
+void System_ToCamelCase(char *target, char *source);
+Gua_Status System_LoadFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gua_Object *object, Gua_String error);
 Gua_Status System_PrintFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gua_Object *object, Gua_String error);
 Gua_Status System_PrintlnFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gua_Object *object, Gua_String error);
 Gua_Status System_SourceFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gua_Object *object, Gua_String error);
-Gua_Status System_ExecFunctionWrapper(void *nspace, Gua_Short argc, Gua_Object *argv, Gua_Object *object, Gua_String error);
 Gua_Status System_Init(void *nspace, int argc, char *argv[], char **env, Gua_String error);
+Gua_Status System_Finish(void *nspace, int argc, char *argv[], char **env, Gua_String error);
 

@@ -22,14 +22,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * RCS: @(#) $Id: math.h,v 2.1 2013/09/09 18:47:00 monteiro Exp $
+ * RCS: @(#) $Id: math.h,v 2.2 2013/11/14 15:35:00 monteiro Exp $
  * 
  */
 
 /* It's not defined in <math.h>. */
 double round(double x);
 
-#define MATH_VERSION "2.1"
+#define MATH_VERSION "2.2"
 
 #define MATH_E  2.7182818284590452354
 #define MATH_PI 3.14159265358979323846

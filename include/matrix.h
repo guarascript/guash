@@ -22,11 +22,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * RCS: @(#) $Id: matrix.h,v 2.1 2013/09/09 18:47:00 monteiro Exp $
+ * RCS: @(#) $Id: matrix.h,v 2.3 2017/01/07 17:49:00 monteiro Exp $
  * 
  */
 
-#define MATRIX_VERSION "2.1"
+#define MATRIX_VERSION "2.3"
 
 Gua_Real Matrix_GaussMatrix(Gua_Object *a, Gua_Object *b, Gua_String error);
 Gua_Real Matrix_JordanMatrix(Gua_Object *a, Gua_Object *b, Gua_String error);
@@ -35,6 +35,7 @@ Gua_Status Matrix_TransMatrix(Gua_Object *a, Gua_Object *b, Gua_String error);
 Gua_Status Matrix_Cross(Gua_Object *a, Gua_Object *b, Gua_Object *c, Gua_String error);
 Gua_Status Matrix_Dot(Gua_Object *a, Gua_Object *b, Gua_Object *c, Gua_String error);
 Gua_Status Matrix_Sum(Gua_Object *a, Gua_Object *object, Gua_String error);
+Gua_Status Matrix_Sum2(Gua_Object *a, Gua_Object *object, Gua_String error);
 Gua_Status Matrix_SumCells(Gua_Object *a, Gua_Object x1, Gua_Object y1, Gua_Object x2, Gua_Object y2, Gua_Object *object, Gua_String error);
 Gua_Status Matrix_Avg(Gua_Object *a, Gua_Object *object, Gua_String error);
 Gua_Status Matrix_AvgCells(Gua_Object *a, Gua_Object x1, Gua_Object y1, Gua_Object x2, Gua_Object y2, Gua_Object *object, Gua_String error);
